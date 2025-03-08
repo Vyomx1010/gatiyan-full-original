@@ -5,7 +5,6 @@ const rideModel = require('../models/ride.model');
 const userModel = require('../models/user.model');
 const dotenv = require('dotenv');
 const { sendEmail } = require('../services/communication.service');
-const { sendMessageToSocketId } = require('../socket');
 const captainModel = require('../models/captain.model');
 const paymentService = require('../services/payment.service'); // Added missing import
 
@@ -46,25 +45,6 @@ module.exports.createRide = async (req, res) => {
 
     // 🛠 Get all captains and send them a socket event for the new ride
     const captains = await captainModel.find();
-    captains.forEach(captain => {
-      if (captain.socketId) {
-        console.log(`📢 Sending new-ride event to Captain: ${captain.socketId}`);
-        sendMessageToSocketId(captain.socketId, {
-          event: 'new-ride',
-          data: {
-            rideId: ride._id,
-            pickup,
-            destination,
-            rideDate,
-            rideTime,
-            fare: fareData[vehicleType],
-            status: "pending",
-            adminEmail,
-            adminPhone
-          }
-        });
-      }
-    });
 
     // Retrieve user details for email content
     const user = await userModel.findById(req.user._id);
@@ -378,10 +358,6 @@ module.exports.startRide = async (req, res) => {
   try {
       const ride = await rideService.startRide({ rideId, otp, captain: req.captain });
       console.log(ride);
-      sendMessageToSocketId(ride.user.socketId, {
-          event: 'ride-started',
-          data: ride
-      });
       return res.status(200).json(ride);
   } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -398,10 +374,6 @@ module.exports.endRide = async (req, res) => {
 
   try {
       const ride = await rideService.endRide({ rideId, captain: req.captain });
-      sendMessageToSocketId(ride.user.socketId, {
-          event: 'ride-ended',
-          data: ride
-      });
       return res.status(200).json(ride);
   } catch (err) {
       return res.status(500).json({ message: err.message });

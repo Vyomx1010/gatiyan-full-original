@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { SocketContext } from "../context/SocketContext";
 import axios from "axios";
 import Captainnavbar from "../components/Captainnavbar";
 import Livetracker from "../components/LiveTracker";
@@ -8,7 +7,6 @@ const CaptainHome = () => {
   const [rides, setRides] = useState([]);
   const [captainLocation, setCaptainLocation] = useState(null);
   const [popup, setPopup] = useState({ show: false, type: '', ride: null, captainLocation: null });
-  const { socket } = useContext(SocketContext);
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
 
   useEffect(() => {
@@ -45,16 +43,6 @@ const CaptainHome = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRides();
-    if (!socket) return;
-    socket.on("new-ride", (newRide) => {
-      setRides((prevRides) => [newRide, ...prevRides]);
-    });
-    return () => {
-      socket.off("new-ride");
-    };
-  }, [socket]);
 
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);

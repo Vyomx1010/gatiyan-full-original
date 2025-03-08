@@ -5,7 +5,6 @@ import { CSSTransition } from 'react-transition-group';
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
-import { SocketContext } from '../context/SocketContext';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import LiveTracking from '../components/LiveTracking';
@@ -40,7 +39,6 @@ const Home = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { socket } = useContext(SocketContext);
   const { user } = useContext(UserDataContext);
 
   // For CSSTransition
@@ -62,20 +60,7 @@ const Home = () => {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    socket.emit('join', { userType: 'user', userId: user._id });
-  }, [user, socket]);
 
-  useEffect(() => {
-    const handleRideStarted = (ride) => {
-      console.log('Ride started:', ride);
-      navigate('/riding', { state: { ride } });
-    };
-    socket.on('ride-started', handleRideStarted);
-    return () => {
-      socket.off('ride-started', handleRideStarted);
-    };
-  }, [socket, navigate]);
 
   // Button panel functions
   const handlePickupChange = async (e) => {

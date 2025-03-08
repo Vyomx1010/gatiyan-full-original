@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { SocketContext } from '../context/SocketContext';
 
 const LiveTracking = ({ sourceCoords, destinationCoords }) => {
     const [currentPosition, setCurrentPosition] = useState({ lat: -33.8688, lng: 151.2195 });
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
-    const { socket } = useContext(SocketContext);
 
     useEffect(() => {
         if (window.google && window.google.maps) {
@@ -79,19 +77,6 @@ const LiveTracking = ({ sourceCoords, destinationCoords }) => {
         }
     }, [map, sourceCoords, destinationCoords]);
 
-    useEffect(() => {
-        if (socket) {
-            socket.on('captain-location-update', (location) => {
-                setCurrentPosition({ lat: location.ltd, lng: location.lng });
-            });
-        }
-
-        return () => {
-            if (socket) {
-                socket.off('captain-location-update');
-            }
-        };
-    }, [socket]);
 
     return <div  id="map" style={{ width: '100%', height: '100%' }} className='z-10'></div>;
 };

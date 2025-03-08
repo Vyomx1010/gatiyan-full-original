@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { SocketContext } from "../context/SocketContext";
 import { motion } from "framer-motion";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -7,7 +6,6 @@ import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaWallet, FaUser, FaSyncAlt } f
 import Usersnavbar from "../components/Usersnavbar";
 
 const UserRideHistory = () => {
-  const { socket } = useContext(SocketContext);
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,25 +62,7 @@ const UserRideHistory = () => {
     }
   }, [refreshCooldown]);
 
-  // Socket.io real-time updates
-  useEffect(() => {
-    if (socket) {
-      socket.on("ride-status-updated", (updatedRide) => {
-        console.log("Socket Update:", updatedRide);
-        setRides((prevRides) => {
-          const rideExists = prevRides.some((ride) => ride._id === updatedRide._id);
-          if (rideExists) {
-            return prevRides.map((ride) =>
-              ride._id === updatedRide._id ? updatedRide : ride
-            );
-          } else {
-            return [...prevRides, updatedRide];
-          }
-        });
-      });
-      return () => socket.off("ride-status-updated");
-    }
-  }, [socket]);
+  
 
   const filteredRides = () => {
     if (activeTab === "all") return rides;

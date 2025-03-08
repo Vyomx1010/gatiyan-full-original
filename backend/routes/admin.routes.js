@@ -8,7 +8,6 @@ const rideModel = require('../models/ride.model');
 const userModel = require('../models/user.model');
 const captainModel = require('../models/captain.model');
 const { sendEmail } = require('../services/communication.service');
-const { sendMessageToSocketId } = require('../socket');
 
 // -------------------------------------------
 // Helper: HTML Email Template with Styling
@@ -105,15 +104,7 @@ router.post('/rides/:id/status', authMiddleware.authAdmin, async (req, res) => {
     }
     
     console.log("Updated ride:", ride);
-    
-    // Emit socket event to the user if they are connected
-    if (ride.user && ride.user.socketId) {
-      sendMessageToSocketId(ride.user.socketId, {
-        event: 'ride-status-updated',
-        data: ride
-      });
-    }
-
+   
     // Send email notification (existing code remains)
     if (ride.user && ride.user.email) {
       const messageBody = `
@@ -183,12 +174,6 @@ router.post('/rides/:id/assign', authMiddleware.authAdmin, async (req, res) => {
         createEmailTemplate('New Ride Assignment', captainMessage)
       );
     }
-
-    // Notify the captain via socket (if available)
-    sendMessageToSocketId(captain.socketId, {
-      event: 'ride-assigned',
-      data: ride
-    });
     
     res.status(200).json({ success: true, ride });
   } catch (err) {

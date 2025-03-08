@@ -24,7 +24,7 @@ connectToDb();
 
 // 1. Secure CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Replace with your Hostinger domain
+  origin: process.env.FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // For cookies/auth tokens
@@ -35,8 +35,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://checkout.razorpay.com"], // Allow Razorpay
-      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://your-vercel-backend.vercel.app"], // WebSocket & frontend
+      scriptSrc: ["'self'", "https://checkout.razorpay.com"], 
+      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://your-vercel-backend.vercel.app"], 
     }
   }
 }));
