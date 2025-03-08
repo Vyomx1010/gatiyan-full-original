@@ -23,11 +23,15 @@ const UserLogin = () => {
     const userData = { email, password };
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/login`,
+        userData
+      );
 
       if (response.status === 200) {
         const data = response.data;
         setUser(data.user);
+        // Store the token immutably under a fixed key "token"
         localStorage.setItem('token', data.token);
         toast.success('Login successful! Redirecting...');
         setTimeout(() => {
@@ -35,12 +39,18 @@ const UserLogin = () => {
         }, 2000);
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
+      const errorMsg =
+        error.response?.data?.message ||
+        'Login failed. Please try again.';
       toast.error(errorMsg);
 
       // Handle unverified email/mobile scenario
-      if (error.response?.status === 401 && errorMsg.includes("verify your email")) {
-        const { email: responseEmail, mobileNumber } = error.response.data.user || {};
+      if (
+        error.response?.status === 401 &&
+        errorMsg.includes("verify your email")
+      ) {
+        const { email: responseEmail, mobileNumber } =
+          error.response.data.user || {};
         toast.info('Verification required. Redirecting to OTP verification...');
         setTimeout(() => {
           navigate('/verify-email-otp', {
@@ -71,12 +81,16 @@ const UserLogin = () => {
             alt="Logo"
           />
           <h1 className="text-2xl font-bold text-black">User Login</h1>
-          <p className="text-gray-600">Welcome back! Please log in to continue.</p>
+          <p className="text-gray-600">
+            Welcome back! Please log in to continue.
+          </p>
         </div>
 
         <form onSubmit={submitHandler} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               required
               type="email"
@@ -88,7 +102,9 @@ const UserLogin = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <div className="relative">
               <input
                 required
