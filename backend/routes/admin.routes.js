@@ -108,7 +108,7 @@ router.post('/rides/:id/status', authMiddleware.authAdmin, async (req, res) => {
     // Send email notification (existing code remains)
     if (ride.user && ride.user.email) {
       const messageBody = `
-        <p>Hello ${ride.user.fullname},</p>
+        <p>Hello ${ride.user.fullname.firstname},</p>
         <p>Your ride request status has been updated to <strong>${req.body.status.toUpperCase()}</strong>.</p>
         ${req.body.status === 'rejected' ? `<p>Reason: ${req.body.reason}</p>` : ''}
         <p>Thank you for choosing our service.</p>
@@ -149,8 +149,8 @@ router.post('/rides/:id/assign', authMiddleware.authAdmin, async (req, res) => {
     // Send email notification to the user
     if (ride.user && ride.user.email) {
       const userMessage = `
-        <p>Hello ${ride.user.firstname} ${ride.user.firstname},</p>
-        <p>Your ride has been assigned to Captain <strong>${captain.firstname} ${captain.lastname}</strong>.</p>
+        <p>Hello ${ride.user.fullname.firstname} ${ride.user.fullname.firstname},</p>
+        <p>Your ride has been assigned to Captain <strong>${captain.fullname.firstname} ${captain.fullname.lastname}</strong>.</p>
         <p>We will keep you updated with further details.</p>
       `;
       await sendEmail(
@@ -162,7 +162,7 @@ router.post('/rides/:id/assign', authMiddleware.authAdmin, async (req, res) => {
     // Send email notification to the captain
     if (captain.email) {
       const captainMessage = `
-        <p>Hello ${captain.firstname},</p>
+        <p>Hello ${captain.fullname.firstname},</p>
         <p>You have a new ride assignment.</p>
         <p><strong>Pickup:</strong> ${ride.pickup}<br>
            <strong>Destination:</strong> ${ride.destination}</p>
