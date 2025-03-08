@@ -26,6 +26,15 @@ const UsersNavbar = () => {
       scrolledHover: 'hover:text-gray-200',
       mobileBg: 'bg-gray-700'
     },
+    '/mytransactions-all': {
+      base: 'bg-gradient-to-r from-gray-700 to-gray-800',
+      scrolled: 'bg-gray-900',
+      text: 'text-gray-100',
+      scrolledText: 'text-gray-300',
+      hover: 'hover:text-gray-400',
+      scrolledHover: 'hover:text-gray-200',
+      mobileBg: 'bg-gray-700'
+    },
     '/user/history': {
       base: 'bg-gradient-to-r from-gray-700 to-gray-800',
       scrolled: 'bg-gray-900',
@@ -57,6 +66,7 @@ const UsersNavbar = () => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/home', label: 'Book Ride' },
+    { path: '/mytransactions-all', label: 'My transactions' },
     { path: '/user/history', label: 'Rides History' },
     { path: '/user/logout', label: 'Logout' }
   ];

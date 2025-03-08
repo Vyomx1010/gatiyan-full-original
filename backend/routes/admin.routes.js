@@ -9,6 +9,8 @@ const userModel = require('../models/user.model');
 const captainModel = require('../models/captain.model');
 const { sendEmail } = require('../services/communication.service');
 
+const PaymentTransaction = require('../models/PaymentTransaction.model');
+
 // -------------------------------------------
 // Helper: HTML Email Template with Styling
 // -------------------------------------------
@@ -278,17 +280,42 @@ router.get('/pending-payments', authMiddleware.authAdmin, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 router.get('/payments', authMiddleware.authAdmin, async (req, res) => {
   try {
-    const payments = await PaymentTransaction.find()
-      .populate('user', 'fullname email mobileNumber')
-      .populate('captain', 'fullname email');
+    // First, find all payments and populate the ride field with its user
+    let payments = await PaymentTransaction.find()
+      .populate({
+        path: 'ride',
+        populate: {
+          path: 'user',
+          select: 'fullname email mobileNumber'
+        }
+      });
+      
+    // For payments where ride is null, manually fetch the user details using payment.user
+    // (Assuming payment.user is stored as an ObjectId)
+    payments = await Promise.all(
+      payments.map(async (payment) => {
+        if (!payment.ride && payment.user) {
+          const userData = await userModel.findById(payment.user).select('fullname email mobileNumber');
+          // Attach the user data under a new field (or mimic the ride structure)
+          // Here, we attach it as payment.userDetails so your frontend can use it.
+          payment = payment.toObject();
+          payment.userDetails = userData;
+        }
+        return payment;
+      })
+    );
+    
     res.status(200).json({ success: true, payments });
   } catch (err) {
     console.error("Error fetching payments:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+
 
 router.post('/complete-payment/:rideId', authMiddleware.authAdmin, async (req, res) => {
   try {

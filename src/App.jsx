@@ -28,6 +28,7 @@ import 'remixicon/fonts/remixicon.css';
 import ContactPage from './pages/ContactPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionsPage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import UserTransactions from './pages/UserTransactions';
 const App = () => {
   return (
     <div>
@@ -53,6 +54,14 @@ const App = () => {
           element={
             <UserProtectWrapper>
               <Home />
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path="/mytransactions-all"
+          element={
+            <UserProtectWrapper>
+              <UserTransactions />
             </UserProtectWrapper>
           }
         />
