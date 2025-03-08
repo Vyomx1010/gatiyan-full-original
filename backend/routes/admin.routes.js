@@ -278,6 +278,17 @@ router.get('/pending-payments', authMiddleware.authAdmin, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.get('/payments', authMiddleware.authAdmin, async (req, res) => {
+  try {
+    const payments = await PaymentTransaction.find()
+      .populate('user', 'fullname email mobileNumber')
+      .populate('captain', 'fullname email');
+    res.status(200).json({ success: true, payments });
+  } catch (err) {
+    console.error("Error fetching payments:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 router.post('/complete-payment/:rideId', authMiddleware.authAdmin, async (req, res) => {
   try {

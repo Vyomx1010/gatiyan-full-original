@@ -86,7 +86,7 @@ const Dashboard = () => {
 
   const formatValue = (key, value) => {
     if (key === "totalEarnings") {
-      return `$${value.toLocaleString()}`;
+      return `₹ ${value.toLocaleString()}`;
     }
     return value.toLocaleString();
   };
