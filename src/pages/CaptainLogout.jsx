@@ -36,7 +36,25 @@ export const CaptainLogout = () => {
     logoutCaptain();
   }, [navigate]);
 
-  return <div>Captain Logout</div>;
+  return (
+    <div className="logout-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f0f0' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="logout-message" style={{ fontSize: '24px', marginBottom: '20px', color: '#333' }}>Logging out...</div>
+        <div className="spinner" style={{ position: 'relative', width: '40px', height: '40px' }}>
+          <div className="double-bounce1" style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: '#333', opacity: 0.6, position: 'absolute', top: 0, left: 0, animation: 'sk-bounce 2.0s infinite ease-in-out' }}></div>
+          <div className="double-bounce2" style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: '#333', opacity: 0.6, position: 'absolute', top: 0, left: 0, animation: 'sk-bounce 2.0s infinite ease-in-out', animationDelay: '-1.0s' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Add the following CSS to your stylesheet
+  /*
+  @keyframes sk-bounce {
+    0%, 100% { transform: scale(0.0) }
+    50% { transform: scale(1.0) }
+  }
+  */
 };
 
 export default CaptainLogout;

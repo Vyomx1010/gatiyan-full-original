@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Captainnavbar from "../components/Captainnavbar";
 import Livetracker from "../components/LiveTracker";
@@ -6,9 +6,12 @@ import Livetracker from "../components/LiveTracker";
 const CaptainHome = () => {
   const [rides, setRides] = useState([]);
   const [captainLocation, setCaptainLocation] = useState(null);
-  const [popup, setPopup] = useState({ show: false, type: '', ride: null, captainLocation: null });
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
+  const [popup, setPopup] = useState({ show: false, type: "", ride: null, captainLocation: null });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
+  // Get current location once on mount
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -18,6 +21,7 @@ const CaptainHome = () => {
     }
   }, []);
 
+  // Fetch rides from backend
   const fetchRides = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -39,10 +43,15 @@ const CaptainHome = () => {
         setRides([]);
       }
     } catch (error) {
+      console.error("Error fetching rides:", error);
       setRides([]);
     }
   };
 
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchRides();
+  }, []);
 
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -81,7 +90,7 @@ const CaptainHome = () => {
       }
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ address }, (results, status) => {
-        if (status === 'OK' && results[0]) {
+        if (status === "OK" && results[0]) {
           const location = results[0].geometry.location;
           callback({ lat: location.lat(), lng: location.lng() });
         } else {
@@ -92,7 +101,6 @@ const CaptainHome = () => {
 
     useEffect(() => {
       if (type === "from") {
-        // Route: Your location → Pickup
         setSource(captainLocation);
         if (ride.pickupCoords) {
           setDestination(ride.pickupCoords);
@@ -100,7 +108,6 @@ const CaptainHome = () => {
           geocodeAddress(ride.pickup, setDestination);
         }
       } else if (type === "path") {
-        // Route: Pickup → Destination
         if (ride.pickupCoords) {
           setSource(ride.pickupCoords);
         } else {
@@ -117,10 +124,7 @@ const CaptainHome = () => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2">
         <div className="bg-white rounded-lg w-full max-w-lg relative shadow-lg">
-          <button 
-            onClick={onClose} 
-            className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 p-2"
-          >
+          <button onClick={onClose} className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 p-2">
             ×
           </button>
           <div className="p-4">
@@ -130,12 +134,11 @@ const CaptainHome = () => {
             {(!source || !destination) ? (
               <p className="text-center py-4">Loading map...</p>
             ) : (
-              // Adding a key based on type and coordinates forces remount so that the map reinitializes.
               <div className="h-64 w-full">
-                <Livetracker 
-                  key={`live-${type}-${source.lat}-${destination.lat}`} 
-                  sourceCoords={source} 
-                  destinationCoords={destination} 
+                <Livetracker
+                  key={`live-${type}-${source.lat}-${destination.lat}`}
+                  sourceCoords={source}
+                  destinationCoords={destination}
                 />
               </div>
             )}
@@ -179,24 +182,50 @@ const CaptainHome = () => {
       cancelled: "bg-red-500",
     };
     return (
-      <span className={`${statusStyles[status] || 'bg-gray-500'} text-white px-2 py-1 rounded-full text-xs font-medium`}>
+      <span className={`${statusStyles[status] || "bg-gray-500"} text-white px-2 py-1 rounded-full text-xs font-medium`}>
         {status}
       </span>
     );
   };
 
+  // Refresh button handler with 25 sec cooldown
+  const handleRefresh = async () => {
+    if (cooldown > 0) return;
+    setIsRefreshing(true);
+    await fetchRides();
+    setIsRefreshing(false);
+    setCooldown(25);
+  };
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldown]);
+
   return (
     <>
       <Captainnavbar />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 sm:p-4">
+      <div className="mt-14 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 sm:p-4 ">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-800">🚖 Rides</h1>
-            <button 
-              onClick={fetchRides} 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm flex items-center gap-1"
+            <button
+              onClick={handleRefresh}
+              disabled={cooldown > 0 || isRefreshing}
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm flex items-center gap-1 ${
+                cooldown > 0 || isRefreshing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              🔄 Refresh
+              {isRefreshing ? "Refreshing..." : cooldown > 0 ? `Wait ${cooldown}s` : "🔄 Refresh"}
             </button>
           </div>
 
@@ -273,13 +302,13 @@ const CaptainHome = () => {
           )}
         </div>
       </div>
-      
+
       {popup.show && (
         <MapModal
           type={popup.type}
           ride={popup.ride}
           captainLocation={popup.captainLocation}
-          onClose={() => setPopup({ show: false, type: '', ride: null, captainLocation: null })}
+          onClose={() => setPopup({ show: false, type: "", ride: null, captainLocation: null })}
         />
       )}
     </>
