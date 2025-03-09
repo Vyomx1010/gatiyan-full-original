@@ -164,7 +164,7 @@ const VerifyEmailOTP = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg">
               <h2 className="text-xl font-bold mb-4">Success!</h2>
-              <p className="mb-4">{success}</p>
+              <p className="mb-4">Your email has been successfully verified. You will receive a call for mobile verification within an hour.</p>
               <button
                 onClick={handlePopupOk}
                 className="px-4 py-2 bg-green-500 text-white rounded"
