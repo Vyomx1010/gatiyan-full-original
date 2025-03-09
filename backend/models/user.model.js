@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
   },
   mobileVerified: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   lastOtpSent: {
     type: Date,

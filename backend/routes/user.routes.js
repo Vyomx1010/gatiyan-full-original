@@ -33,14 +33,7 @@ router.post(
   userController.verifyEmailOTP
 );
 
-router.post(
-  "/verify-mobile-otp",
-  [
-    body("mobileNumber").isLength({ min: 10 }).withMessage("Invalid Mobile Number"),
-    body("otp").isLength({ min: 6, max: 6 }).withMessage("Invalid OTP"),
-  ],
-  userController.verifyMobileOTP
-);
+
 
 router.post(
   "/login",

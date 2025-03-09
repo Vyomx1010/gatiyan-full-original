@@ -9,7 +9,6 @@ module.exports.createUser = async ({
   profilePhoto,
   mobileNumber,
   emailOTP,
-  mobileOTP,
 }) => {
   if (!firstname || !email || !password || !mobileNumber) {
     throw new Error("All fields are required");
@@ -24,7 +23,6 @@ module.exports.createUser = async ({
     profilePhoto,
     mobileNumber,
     emailOTP,
-    mobileOTP,
   });
 
   return user;

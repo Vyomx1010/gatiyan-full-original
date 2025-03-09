@@ -8,9 +8,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/rides': 'http://localhost:3000',
-      '/captains': 'http://localhost:3000',
-      '/users': 'http://localhost:3000',
+      '/api': 'http://localhost:3000',
     },
   },
 });

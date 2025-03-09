@@ -20,7 +20,8 @@ const contactRoutes = require('./routes/contact.routes');
 const app = express();
 
 // Trust proxy for proper IP handling
-app.set('trust proxy', true);
+app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
+
 
 // Connect to MongoDB
 connectToDb();

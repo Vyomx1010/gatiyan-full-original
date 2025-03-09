@@ -55,12 +55,9 @@ module.exports.registerUser = async (req, res, next) => {
 
       // Generate new OTPs
       const emailOTP = generateOTP();
-      const mobileOTP = generateOTP();
-      console.log("Generated Mobile OTP:", mobileOTP);
       console.log("Generated EMAIL OTP:", emailOTP);
 
       user.emailOTP = emailOTP;
-      user.mobileOTP = mobileOTP;
       user.password = await userModel.hashPassword(password); // Update password if changed
       user.fullname = { firstname: fullname.firstname, lastname: fullname.lastname };
       user.profilePhoto = profilePhoto;
@@ -71,8 +68,6 @@ module.exports.registerUser = async (req, res, next) => {
       // New user signup
       const hashedPassword = await userModel.hashPassword(password);
       const emailOTP = generateOTP();
-      const mobileOTP = generateOTP();
-      console.log("Generated Mobile OTP:", mobileOTP);
       console.log("Generated EMAIL OTP:", emailOTP);
 
       user = await userService.createUser({
@@ -83,14 +78,12 @@ module.exports.registerUser = async (req, res, next) => {
         profilePhoto,
         mobileNumber: formattedMobileNumber,
         emailOTP,
-        mobileOTP,
         lastOtpSent: new Date(), // Track OTP send time
       });
     }
 
     // Send OTPs
     await sendEmailOTP(user.email, user.emailOTP);
-    await sendSMSOTP(user.mobileNumber, user.mobileOTP);
 
     console.log("OTP sent to email and mobile number");
 
@@ -138,49 +131,7 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
   res.status(200).json({ message: "Email verified successfully" });
 };
 
-module.exports.verifyMobileOTP = async (req, res, next) => {
-  let { mobileNumber, otp } = req.body;
 
-  console.log("Incoming Mobile OTP Verification Request:");
-  console.log("Mobile Number:", mobileNumber);
-  console.log("Entered OTP:", otp);
-
-  if (!mobileNumber || !otp) {
-    console.log("Mobile number or OTP missing in request.");
-    return res.status(400).json({ message: "Mobile number and OTP are required" });
-  }
-
-  if (!mobileNumber.startsWith("+91")) {
-    mobileNumber = `+91${mobileNumber.trim()}`;
-  }
-
-  console.log("Normalized Mobile Number for Query:", mobileNumber);
-
-  try {
-    const user = await userModel.findOne({ mobileNumber }).select("+mobileOTP");
-    if (!user) {
-      console.log("User not found for mobile number:", mobileNumber);
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    console.log("Stored OTP in DB:", user.mobileOTP);
-
-    if (String(user.mobileOTP).trim() !== String(otp).trim()) {
-      console.log(`OTP mismatch: Expected ${user.mobileOTP}, Received ${otp}`);
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    user.mobileVerified = true;
-    await user.save();
-
-    console.log("Mobile number verified successfully for:", mobileNumber);
-
-    res.status(200).json({ message: "Mobile number verified successfully" });
-  } catch (error) {
-    console.error("Error during mobile OTP verification:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 
 module.exports.loginUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -205,11 +156,9 @@ module.exports.loginUser = async (req, res, next) => {
   if (!user.emailVerified || !user.mobileVerified) {
     // Trigger verification process
     user.emailOTP = !user.emailVerified ? generateOTP() : user.emailOTP;
-    user.mobileOTP = !user.mobileVerified ? generateOTP() : user.mobileOTP;
     user.lastOtpSent = new Date();
 
     if (!user.emailVerified) await sendEmailOTP(user.email, user.emailOTP);
-    if (!user.mobileVerified) await sendSMSOTP(user.mobileNumber, user.mobileOTP);
 
     await user.save();
 
@@ -295,10 +244,6 @@ module.exports.resendOTP = async (req, res) => {
     if (!user.emailVerified) {
       user.emailOTP = generateOTP();
       await sendEmailOTP(user.email, user.emailOTP);
-    }
-    if (!user.mobileVerified) {
-      user.mobileOTP = generateOTP();
-      await sendSMSOTP(user.mobileNumber, user.mobileOTP);
     }
 
     user.lastOtpSent = new Date();

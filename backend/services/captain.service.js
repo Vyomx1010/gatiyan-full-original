@@ -14,7 +14,6 @@ module.exports.createCaptain = async ({
   mobileNumber,
   drivingLicense,
   emailOTP,
-  mobileOTP,
 }) => {
   if (
     !firstname ||
@@ -50,7 +49,6 @@ module.exports.createCaptain = async ({
       coordinates: [0, 0],
     },
     emailOTP,
-    mobileOTP,
   });
 
   return captain;

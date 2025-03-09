@@ -47,16 +47,7 @@ router.post(
   captainController.verifyEmailOTP
 );
 
-router.post(
-  "/verify-mobile-otp",
-  [
-    body("mobileNumber")
-      .isLength({ min: 10 })
-      .withMessage("Invalid Mobile Number"),
-    body("otp").isLength({ min: 6, max: 6 }).withMessage("Invalid OTP"),
-  ],
-  captainController.verifyMobileOTP
-);
+
 
 router.post(
   "/login",

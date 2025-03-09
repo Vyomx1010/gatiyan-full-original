@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const VerifyOTP = ({ type, email, mobileNumber, userType }) => {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { email: locationEmail, mobileNumber: locationMobileNumber } = location.state || {};
@@ -25,20 +26,27 @@ const VerifyOTP = ({ type, email, mobileNumber, userType }) => {
 
       if (response.status === 200) {
         if (type === "email") {
-          navigate("/verify-mobile-otp", { state: { email: finalEmail, mobileNumber: finalMobileNumber, userType } });
+          setSuccess(response.data.message || "Email verified successfully!");
+          setError("");
+          // For email, wait for user confirmation in the popup to navigate.
         } else {
           navigate(userType === "captain" ? "/captain-home" : "/home");
         }
       }
-    } catch (error) {
-      console.error(error); // Log the error for debugging
+    } catch (err) {
+      console.error(err); // Log the error for debugging
       setError("Invalid OTP. Please try again.");
     }
   };
 
+  const handlePopupOk = () => {
+    setSuccess("");
+    navigate(userType === "captain" ? "/captain-home" : "/home");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-purple-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Verify OTP</h2>
         <p className="text-sm text-gray-600 mb-4">
           {type === "email"
@@ -65,6 +73,22 @@ const VerifyOTP = ({ type, email, mobileNumber, userType }) => {
             Verify OTP
           </button>
         </form>
+
+        {/* Success Popup */}
+        {success && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg">
+              <h2 className="text-xl font-bold mb-4">Success!</h2>
+              <p className="mb-4">{success}</p>
+              <button
+                onClick={handlePopupOk}
+                className="px-4 py-2 bg-green-500 text-white rounded"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

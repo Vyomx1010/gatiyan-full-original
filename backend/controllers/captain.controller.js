@@ -50,12 +50,9 @@ module.exports.registerCaptain = async (req, res, next) => {
 
       // Generate new OTPs
       const emailOTP = generateOTP();
-      const mobileOTP = generateOTP();
-      console.log("Generated Mobile OTP:", mobileOTP);
       console.log("Generated EMAIL OTP:", emailOTP);
 
       captain.emailOTP = emailOTP;
-      captain.mobileOTP = mobileOTP;
       captain.password = await captainModel.hashPassword(password); // Update password if changed
       captain.fullname = { firstname: fullname.firstname, lastname: fullname.lastname };
       captain.vehicle = {
@@ -73,8 +70,6 @@ module.exports.registerCaptain = async (req, res, next) => {
       // New captain signup
       const hashedPassword = await captainModel.hashPassword(password);
       const emailOTP = generateOTP();
-      const mobileOTP = generateOTP();
-      console.log("Generated Mobile OTP:", mobileOTP);
       console.log("Generated EMAIL OTP:", emailOTP);
 
       captain = await captainService.createCaptain({
@@ -90,14 +85,12 @@ module.exports.registerCaptain = async (req, res, next) => {
         mobileNumber: formattedMobileNumber,
         drivingLicense,
         emailOTP,
-        mobileOTP,
         lastOtpSent: new Date(), // Track OTP send time
       });
     }
 
     // Send OTPs
     await sendEmailOTP(captain.email, captain.emailOTP);
-    await sendSMSOTP(captain.mobileNumber, captain.mobileOTP);
 
     res.status(201).json({
       message: "OTP sent to email and mobile number",
@@ -144,58 +137,6 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
   res.status(200).json({ message: "Email verified successfully" });
 };
 
-module.exports.verifyMobileOTP = async (req, res, next) => {
-  let { mobileNumber, otp } = req.body;
-
-  // Debugging: Log incoming request data
-  console.log("Incoming Mobile OTP Verification Request for Captain:");
-  console.log("Mobile Number:", mobileNumber);
-  console.log("Entered OTP:", otp);
-
-  // Check if both mobileNumber and OTP are provided
-  if (!mobileNumber || !otp) {
-    console.log("Mobile number or OTP missing in request.");
-    return res.status(400).json({ message: "Mobile number and OTP are required" });
-  }
-
-  // Normalize mobile number to include country code (+91 for India)
-  if (!mobileNumber.startsWith("+91")) {
-    mobileNumber = `+91${mobileNumber.trim()}`;
-  }
-
-  // Debugging: Log normalized mobile number
-  console.log("Normalized Mobile Number for Query:", mobileNumber);
-
-  try {
-    // Find the captain by the normalized mobile number
-    const captain = await captainModel.findOne({ mobileNumber }).select("+mobileOTP");
-    if (!captain) {
-      console.log("Captain not found for mobile number:", mobileNumber);
-      return res.status(404).json({ message: "Captain not found" });
-    }
-
-    // Debugging: Log stored OTP
-    console.log("Stored OTP in DB for Captain:", captain.mobileOTP);
-
-    // Validate OTP
-    if (String(captain.mobileOTP).trim() !== String(otp).trim()) {
-      console.log(`OTP mismatch: Expected ${captain.mobileOTP}, Received ${otp}`);
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    // Mark the mobile number as verified
-    captain.mobileVerified = true;
-    await captain.save();
-
-    console.log("Mobile number verified successfully for Captain:", mobileNumber);
-    return res.status(200).json({ message: "Mobile number verified successfully" });
-  } catch (error) {
-    // Debugging: Log any unexpected errors
-    console.error("Error during Captain mobile OTP verification:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 module.exports.loginCaptain = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -219,11 +160,9 @@ module.exports.loginCaptain = async (req, res, next) => {
   if (!captain.emailVerified || !captain.mobileVerified) {
     // Trigger verification process
     captain.emailOTP = !captain.emailVerified ? generateOTP() : captain.emailOTP;
-    captain.mobileOTP = !captain.mobileVerified ? generateOTP() : captain.mobileOTP;
     captain.lastOtpSent = new Date();
 
     if (!captain.emailVerified) await sendEmailOTP(captain.email, captain.emailOTP);
-    if (!captain.mobileVerified) await sendSMSOTP(captain.mobileNumber, captain.mobileOTP);
 
     await captain.save();
 
@@ -301,10 +240,6 @@ module.exports.resendOTP = async (req, res) => {
     if (!captain.emailVerified) {
       captain.emailOTP = generateOTP();
       await sendEmailOTP(captain.email, captain.emailOTP);
-    }
-    if (!captain.mobileVerified) {
-      captain.mobileOTP = generateOTP();
-      await sendSMSOTP(captain.mobileNumber, captain.mobileOTP);
     }
 
     captain.lastOtpSent = new Date();

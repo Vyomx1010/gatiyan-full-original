@@ -20,12 +20,10 @@ const VerifyEmailOTP = () => {
     newOtp[index] = value;
     setOtp(newOtp);
     if (value && index < 5) {
-      // Use refs instead of document.getElementById for smoother focus transition
+      // Use refs for smoother focus transition
       const nextInput = inputRefs.current[index + 1];
       if (nextInput) {
-        setTimeout(() => {
-          nextInput.focus();
-        }, 100);
+        setTimeout(() => nextInput.focus(), 100);
       }
     }
   };
@@ -58,8 +56,7 @@ const VerifyEmailOTP = () => {
       console.log('Server Response:', response.data);
       setSuccess(response.data.message);
       setError('');
-      // After successful email verification, navigate to mobile OTP verification page
-      navigate("/verify-mobile-otp", { state: { email, mobileNumber, userType } });
+      // Do not navigate automatically—wait for user confirmation via popup.
     } catch (err) {
       console.error('Error verifying OTP:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to verify OTP. Please try again.');
@@ -82,7 +79,6 @@ const VerifyEmailOTP = () => {
       setError(errorMsg);
       setSuccess('');
       if (err.response?.status === 429) {
-        // Extract remaining cooldown time from error message
         const match = errorMsg.match(/wait (\d+) seconds/);
         if (match) {
           setCooldown(parseInt(match[1], 10));
@@ -94,16 +90,19 @@ const VerifyEmailOTP = () => {
   // Handle cooldown timer
   useEffect(() => {
     if (cooldown > 0) {
-      const timer = setInterval(() => {
-        setCooldown((prev) => prev - 1);
-      }, 1000);
+      const timer = setInterval(() => setCooldown(prev => prev - 1), 1000);
       return () => clearInterval(timer);
     }
   }, [cooldown]);
 
+  const handlePopupOk = () => {
+    setSuccess('');
+    navigate(userType === 'captain' ? '/captain-home' : '/home');
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg relative">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900">Verify Your Email</h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -129,7 +128,6 @@ const VerifyEmailOTP = () => {
             ))}
           </div>
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-          {success && <p className="text-sm text-green-600 text-center">{success}</p>}
           <div className="mt-4 bg-gray-50 p-4 rounded-md">
             <div className="text-sm text-gray-700">
               <p>
@@ -160,6 +158,22 @@ const VerifyEmailOTP = () => {
             </button>
           </div>
         </form>
+
+        {/* Success Popup */}
+        {success && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg">
+              <h2 className="text-xl font-bold mb-4">Success!</h2>
+              <p className="mb-4">{success}</p>
+              <button
+                onClick={handlePopupOk}
+                className="px-4 py-2 bg-green-500 text-white rounded"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

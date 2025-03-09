@@ -13,7 +13,6 @@ import CaptainProtectWrapper from './pages/CaptainProtectWrapper';
 import CaptainLogout from './pages/CaptainLogout';
 import CaptainRiding from './pages/CaptainRiding';
 import VerifyEmailOTP from './pages/VerifyEmailOTP';
-import VerifyMobileOTP from './pages/VerifyMobileOTP';
 import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard.jsx';
 import Users from './pages/admin/Users';
@@ -40,7 +39,6 @@ const App = () => {
         <Route path="/captain-login" element={<Captainlogin />} />
         <Route path="/captain-signup" element={<CaptainSignup />} />
         <Route path="/verify-email-otp" element={<VerifyEmailOTP />} />
-        <Route path="/verify-mobile-otp" element={<VerifyMobileOTP />} />
         <Route path="/admin/login" element={<AdminLogin />} /> 
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
