@@ -19,6 +19,9 @@ const contactRoutes = require('./routes/contact.routes');
 
 const app = express();
 
+// Trust proxy for proper IP handling
+app.set('trust proxy', true);
+
 // Connect to MongoDB
 connectToDb();
 
@@ -75,13 +78,13 @@ app.get('/', (req, res) => {
 });
 
 // 8. API Routes
-app.use('/users', userRoutes);
-app.use('/captains', captainRoutes);
-app.use('/maps', mapsRoutes);
-app.use('/rides', rideRoutes);
-app.use('/payments', paymentRoutes);
-app.use('/admin-hubhaimere-sepanga-matlena', adminRoutes);
-app.use('/contact', contactRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/captains', captainRoutes);
+app.use('/api/maps', mapsRoutes);
+app.use('/api/rides', rideRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/contact', contactRoutes);
 
 // 9. Error Handling Middleware
 app.use((err, req, res, next) => {
