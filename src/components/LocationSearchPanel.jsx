@@ -18,7 +18,7 @@ const LocationSearchPanel = ({ suggestions, onSelect }) => {
             </div>
           ))
         ) : (
-          <div className="p-2 text-gray-300">No suggestions available</div>
+            <div className="p-2 transition-colors duration-200 hover:bg-gray-600 cursor-pointer">No suggestions available</div>
         )}
       </div>
       <style>{`

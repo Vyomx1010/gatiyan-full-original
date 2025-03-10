@@ -46,8 +46,8 @@ const Navbar = ({ onNavigate }) => {
     >
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <button onClick={() => onNavigate('top')} className="text-2xl font-bold text-white">
-            <img className="w-26 h-12" src={logo} alt="Logo" />
+          <button onClick={() => onNavigate('top')} className="justify-start flex items-center space-x-2">
+            <img className="w-26 h-12" src={logo} alt="Logo" /><span className="text-4xl font-bold text-white mt-2">GatiYan</span>
           </button>
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/home">
@@ -111,6 +111,14 @@ const Navbar = ({ onNavigate }) => {
             transition={{ duration: 0.3 }}
           >
             <nav className="px-4 py-4 space-y-4">
+              <Link to="/home">
+                <button
+                  onClick={() => handleNavClick('services')}
+                  className="block w-full text-left text-gray-300 hover:text-white transition mb-4 text-xl"
+                >
+                  Book Fast
+                </button>
+              </Link>
               <Link to="/">
                 <button
                   onClick={() => handleNavClick('services')}

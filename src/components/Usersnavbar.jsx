@@ -8,12 +8,9 @@ const UsersNavbar = () => {
   const location = useLocation();
   const { user } = useContext(UserDataContext);
 
-  // Use token from localStorage as an extra check
   const token = localStorage.getItem('token');
-  // Here we decide the user is logged in if token exists.
   const isLoggedIn = Boolean(token);
 
-  // Define dark-themed color configurations for each route
   const routeThemes = {
     '/': {
       base: 'bg-gradient-to-r from-gray-800 to-gray-900',
@@ -70,10 +67,10 @@ const UsersNavbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation links for guest and authenticated users
   const guestNavLinks = [
-    { path: '/login', label: 'Login' },
-    { path: '/signup', label: 'Signup' }
+    { path: '/', label: 'Home' },
+    { path: '/login', label: 'Login', isButton: true },
+    { path: '/signup', label: 'Signup', isButton: true }
   ];
 
   const authNavLinks = [
@@ -81,7 +78,7 @@ const UsersNavbar = () => {
     { path: '/home', label: 'Book Ride' },
     { path: '/mytransactions-all', label: 'My transactions' },
     { path: '/user/history', label: 'Rides History' },
-    { path: '/user/logout', label: 'Logout' }
+    { path: '/user/logout', label: 'Logout', isButton: true }
   ];
 
   const navLinks = isLoggedIn ? authNavLinks : guestNavLinks;
@@ -94,7 +91,6 @@ const UsersNavbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo Section */}
           <div className="flex-shrink-0 flex items-center">
             <h1
               className={`text-xl font-bold transition-colors duration-500 ${
@@ -109,8 +105,8 @@ const UsersNavbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
-              const isLogout = link.label === 'Logout';
-              const baseClasses = isLogout
+              const isButton = link.isButton;
+              const baseClasses = isButton
                 ? 'bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-300'
                 : `relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 group ${
                     isScrolled
@@ -120,7 +116,7 @@ const UsersNavbar = () => {
               return (
                 <Link key={link.path} to={link.path} className={baseClasses}>
                   {link.label}
-                  {!isLogout && (
+                  {!isButton && (
                     <span
                       className={`absolute bottom-0 left-0 w-full h-0.5 transform origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${
                         isScrolled ? currentTheme.scrolledText : 'bg-gray-100'
@@ -176,8 +172,8 @@ const UsersNavbar = () => {
         >
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
-            const isLogout = link.label === 'Logout';
-            const baseClasses = isLogout
+            const isButton = link.isButton;
+            const baseClasses = isButton
               ? 'block bg-red-600 text-white px-4 py-2 rounded-lg text-base font-semibold shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-300'
               : `block px-3 py-2 rounded-md text-base font-medium transition-all duration-300 ${
                   isScrolled

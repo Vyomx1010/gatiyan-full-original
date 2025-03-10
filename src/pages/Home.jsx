@@ -42,6 +42,9 @@ const Home = () => {
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [pendingStep, setPendingStep] = useState(null);
 
+  // Error Modal state
+  const [errorModal, setErrorModal] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useContext(UserDataContext);
@@ -93,6 +96,7 @@ const Home = () => {
         setPickupSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching pickup suggestions:', error);
+        setErrorModal("Error fetching pickup suggestions: " + error.message);
       }
     } else {
       setPickupSuggestions([]);
@@ -114,6 +118,7 @@ const Home = () => {
         setDestinationSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching destination suggestions:', error);
+        setErrorModal("Error fetching destination suggestions: " + error.message);
       }
     } else {
       setDestinationSuggestions([]);
@@ -158,6 +163,7 @@ const Home = () => {
       setCurrentStep('vehicle');
     } catch (error) {
       console.error('Error fetching fare or coordinates:', error);
+      setErrorModal("Error fetching fare or coordinates: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -278,7 +284,7 @@ const Home = () => {
           {currentStep !== 'input' && (
             <button
               onClick={handleBack}
-              className="absolute top-4 left-4 text-xl text-gray-600 hover:text-gray-700 z-[60]"
+              className="absolute top-1 left-4 text-xl text-black hover:text-gray-700 z-[60] "
               title="Go Back"
             >
               <FaArrowLeft />
@@ -327,15 +333,16 @@ const Home = () => {
                                   setPickup(response.data.formatted_address);
                                 } catch (error) {
                                   console.error('Error fetching coordinates:', error);
+                                  setErrorModal("Error fetching coordinates: " + error.message);
                                 }
                               },
                               (error) => {
                                 console.error('Error getting geolocation:', error.message);
-                                alert('Unable to access your current location. Please enable location services.');
+                                setErrorModal("Error getting geolocation: " + error.message);
                               }
                             );
                           } else {
-                            alert('Geolocation is not supported by this browser.');
+                            setErrorModal("Geolocation is not supported by this browser.");
                           }
                         }}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-700 animate-pulse"
@@ -444,6 +451,22 @@ const Home = () => {
                 Yes
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Popup Modal */}
+      {errorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-sm mx-4 animate-modal">
+            <h3 className="text-xl font-semibold mb-4 text-red-600">Error</h3>
+            <p className="text-gray-600 mb-4">{errorModal}</p>
+            <button
+              onClick={() => setErrorModal("")}
+              className="w-full bg-red-600 text-white font-semibold p-2 rounded-lg hover:bg-red-700"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

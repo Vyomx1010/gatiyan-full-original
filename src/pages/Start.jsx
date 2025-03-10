@@ -179,7 +179,7 @@ function Start() {
       navigate('/home', { state: rideInput });
     } else {
       localStorage.setItem('rideInput', JSON.stringify(rideInput));
-      navigate('/login');
+      navigate('/home');
     }
   };
 
@@ -212,7 +212,7 @@ function Start() {
               </p>
               <div className="flex gap-4">
                 <div>
-                  <Link to="/login">
+                  <Link to="/home">
                     <Button variant="primary" size="lg" onClick={() => scrollToSection('services')}>
                       Make Ride
                     </Button>
@@ -241,6 +241,7 @@ function Start() {
                       type="text"
                       className="bg-white text-black placeholder:text-gray-400"
                       onClick={() => setActiveField('pickup')}
+                      required
                     />
                     <button
                       type="button"
@@ -268,6 +269,7 @@ function Start() {
                       type="text"
                       className="bg-white text-black placeholder:text-gray-400"
                       onClick={() => setActiveField('destination')}
+                      required
                     />
                     {activeField === 'destination' && destinationSuggestions.length > 0 && (
                       <LocationSearchPanel
