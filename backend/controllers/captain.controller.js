@@ -4,7 +4,7 @@ const { validationResult } = require("express-validator");
 const path = require("path");
 const blackListTokenModel = require(path.resolve(__dirname, "../models/blackListToken.model.js"));
 const { generateOTP } = require("../utils/otp.utils");
-const { sendEmailOTP, sendSMSOTP } = require("../services/communication.service");
+const { sendEmailOTP } = require("../services/communication.service");
 const rideModel = require("../models/ride.model");
 
 module.exports.registerCaptain = async (req, res, next) => {
