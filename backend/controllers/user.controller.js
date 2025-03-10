@@ -30,7 +30,7 @@ module.exports.registerUser = async (req, res, next) => {
     // Check if email or mobile already exists
     const existingUserByEmail = await userModel.findOne({ email });
     const existingUserByMobile = await userModel.findOne({ mobileNumber: formattedMobileNumber });
-
+    
     let user;
 
     if (existingUserByEmail || existingUserByMobile) {

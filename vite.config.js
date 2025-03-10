@@ -8,7 +8,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://gatiyan-full-original.vercel.app',
+      '/api': 'http://localhost:3000',
     },
   },
 });

@@ -50,9 +50,7 @@ const App = () => {
         <Route
           path="/home"
           element={
-            <UserProtectWrapper>
               <Home />
-            </UserProtectWrapper>
           }
         />
         <Route

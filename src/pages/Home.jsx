@@ -30,6 +30,11 @@ const Home = () => {
   const [destinationCoords, setDestinationCoords] = useState(null);
   const [confirmSubmitting, setConfirmSubmitting] = useState(false);
 
+  // Lifted ride details for confirm ride
+  const [rideDate, setRideDate] = useState("");
+  const [rideTime, setRideTime] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+
   // Loader while finding trip
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,9 +49,21 @@ const Home = () => {
   // For CSSTransition
   const nodeRef = useRef(null);
 
-  // Prefill pickup and destination if passed from Start or stored in localStorage
+  // Restore pending ride state when Home mounts
   useEffect(() => {
-    if (location.state && location.state.pickup && location.state.destination) {
+    const pendingRideString = localStorage.getItem('pendingRide');
+    if (pendingRideString) {
+      const pendingRide = JSON.parse(pendingRideString);
+      if (pendingRide.pickup) setPickup(pendingRide.pickup);
+      if (pendingRide.destination) setDestination(pendingRide.destination);
+      if (pendingRide.rideDate) setRideDate(pendingRide.rideDate);
+      if (pendingRide.rideTime) setRideTime(pendingRide.rideTime);
+      if (pendingRide.paymentMethod) setPaymentMethod(pendingRide.paymentMethod);
+      if (pendingRide.vehicleType) setVehicleType(pendingRide.vehicleType);
+      if (pendingRide.fare) setFare({ [pendingRide.vehicleType]: pendingRide.fare });
+      setCurrentStep('confirm');
+      localStorage.removeItem('pendingRide');
+    } else if (location.state && location.state.pickup && location.state.destination) {
       setPickup(location.state.pickup);
       setDestination(location.state.destination);
     } else {
@@ -59,8 +76,6 @@ const Home = () => {
       }
     }
   }, [location.state]);
-
-
 
   // Button panel functions
   const handlePickupChange = async (e) => {
@@ -105,7 +120,6 @@ const Home = () => {
     }
   };
 
-  // Button panel submission (if needed)
   const submitHandler = (e) => {
     e.preventDefault();
   };
@@ -167,6 +181,9 @@ const Home = () => {
     setRide(null);
     setSourceCoords(null);
     setDestinationCoords(null);
+    setRideDate("");
+    setRideTime("");
+    setPaymentMethod("cash");
     setCurrentStep('input');
   };
 
@@ -385,6 +402,12 @@ const Home = () => {
                   destination={destination}
                   fare={fare}
                   vehicleType={vehicleType}
+                  rideDate={rideDate}
+                  rideTime={rideTime}
+                  paymentMethod={paymentMethod}
+                  setRideDate={setRideDate}
+                  setRideTime={setRideTime}
+                  setPaymentMethod={setPaymentMethod}
                   buttonDisabled={confirmSubmitting}
                   onConfirmRideSuccess={(rideData) => {
                     handleRideConfirmed(rideData);

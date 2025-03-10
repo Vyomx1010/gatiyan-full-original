@@ -16,7 +16,7 @@ const UserSignup = () => {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: '', // New field for confirm password
+    confirmPassword: '',
     mobileNumber: '',
   });
   const [profilePhoto, setProfilePhoto] = useState(null);
@@ -24,8 +24,8 @@ const UserSignup = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for confirm password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const updateFormData = (e) => {
     const { name, value } = e.target;

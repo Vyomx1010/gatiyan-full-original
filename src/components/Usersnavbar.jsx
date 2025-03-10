@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { UserDataContext } from '../context/UserContext';
 
 const UsersNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useContext(UserDataContext);
+
+  // Use token from localStorage as an extra check
+  const token = localStorage.getItem('token');
+  // Here we decide the user is logged in if token exists.
+  const isLoggedIn = Boolean(token);
 
   // Define dark-themed color configurations for each route
   const routeThemes = {
@@ -63,13 +70,21 @@ const UsersNavbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  // Navigation links for guest and authenticated users
+  const guestNavLinks = [
+    { path: '/login', label: 'Login' },
+    { path: '/signup', label: 'Signup' }
+  ];
+
+  const authNavLinks = [
     { path: '/', label: 'Home' },
     { path: '/home', label: 'Book Ride' },
     { path: '/mytransactions-all', label: 'My transactions' },
     { path: '/user/history', label: 'Rides History' },
     { path: '/user/logout', label: 'Logout' }
   ];
+
+  const navLinks = isLoggedIn ? authNavLinks : guestNavLinks;
 
   return (
     <nav
@@ -103,11 +118,7 @@ const UsersNavbar = () => {
                       : `${currentTheme.text} ${currentTheme.hover}`
                   }`;
               return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={baseClasses}
-                >
+                <Link key={link.path} to={link.path} className={baseClasses}>
                   {link.label}
                   {!isLogout && (
                     <span
@@ -174,11 +185,7 @@ const UsersNavbar = () => {
                     : `${currentTheme.text} hover:bg-black hover:bg-opacity-10`
                 } ${isActive ? (isScrolled ? `${currentTheme.scrolledText} bg-gray-800` : 'bg-black bg-opacity-10') : ''}`;
             return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={baseClasses}
-              >
+              <Link key={link.path} to={link.path} className={baseClasses}>
                 {link.label}
               </Link>
             );

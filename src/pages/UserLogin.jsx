@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserDataContext } from '../context/UserContext';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
@@ -12,9 +12,10 @@ const UserLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  
   const { setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -31,12 +32,16 @@ const UserLogin = () => {
       if (response.status === 200) {
         const data = response.data;
         setUser(data.user);
-        // Store the token immutably under a fixed key "token"
         localStorage.setItem('token', data.token);
         toast.success('Login successful! Redirecting...');
-        setTimeout(() => {
+        
+        // Check if there's a redirect instruction from pending ride state
+        const redirectAfterLogin = location.state?.redirectAfterLogin;
+        if (redirectAfterLogin) {
+          navigate(redirectAfterLogin);
+        } else {
           navigate('/home');
-        }, 2000);
+        }
       }
     } catch (error) {
       const errorMsg =
@@ -44,7 +49,6 @@ const UserLogin = () => {
         'Login failed. Please try again.';
       toast.error(errorMsg);
 
-      // Handle unverified email/mobile scenario
       if (
         error.response?.status === 401 &&
         errorMsg.includes("verify your email")

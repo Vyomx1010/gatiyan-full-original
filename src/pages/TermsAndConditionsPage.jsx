@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Navbar from '../components/Landing/Navbar';
 // Refined styles with improved typography and spacing
 const styles = {
   container: {
@@ -52,6 +52,8 @@ const styles = {
 
 const TermsAndConditionsPage = () => {
   return (
+    <>
+    <Navbar />
     <div style={styles.container}>
       <h1 style={styles.header}>Terms &amp; Conditions</h1>
       
@@ -231,6 +233,7 @@ const TermsAndConditionsPage = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

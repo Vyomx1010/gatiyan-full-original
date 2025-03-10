@@ -50,6 +50,14 @@ const Navbar = ({ onNavigate }) => {
             <img className="w-26 h-12" src={logo} alt="Logo" />
           </button>
           <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/home">
+              <button
+                onClick={() => handleNavClick('services')}
+                className="text-gray-300 hover:text-white transition"
+              >
+                Book Fast
+              </button>
+            </Link>
             <Link to="/">
               <button
                 onClick={() => handleNavClick('services')}
