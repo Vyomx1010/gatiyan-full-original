@@ -10,8 +10,8 @@ async function getFare(pickup, destination) {
   try {
     const distanceTime = await mapService.getDistanceTime(pickup, destination);
     
-    if (!distanceTime || typeof distanceTime.distance !== 'number' || typeof distanceTime.duration !== 'number') {
-      throw new Error('Invalid response from map service');
+    if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
+      throw new Error('Invalid response from GoMaps API');
     }
     
     console.log("Distance & Time Data:", distanceTime); // Debugging
@@ -39,8 +39,8 @@ async function getFare(pickup, destination) {
     for (const type in baseFare) {
       fare[type] = Math.round(
         baseFare[type] +
-        ((distanceTime.distance / 1000) * perKmRate[type]) +
-        ((distanceTime.duration / 60) * perMinuteRate[type])
+        ((distanceTime.distance.value / 1000) * perKmRate[type]) +
+        ((distanceTime.duration.value / 60) * perMinuteRate[type])
       );
     }
     console.log("Calculated Fare:", fare); // Debugging
@@ -50,41 +50,6 @@ async function getFare(pickup, destination) {
     throw new Error('Fare calculation failed');
   }
 }
-
-
-
-
-
-
-// Testing 
-
-
-
-// async function getFare(pickup, destination) {
-//   if (!pickup || !destination) {
-//     throw new Error('Pickup and destination are required');
-//   }
-
-//   try {
-//     // Optionally, you can still call the map service to log distance & time
-//     // but we'll ignore its values for fare calculation.
-//     const distanceTime = await mapService.getDistanceTime(pickup, destination);
-//     console.log("Distance & Time Data (ignored):", distanceTime);
-
-//     // Return a fixed fare of 1 rupee for all vehicle types
-//     const fare = {
-//       '4-seater hatchback': 1,
-//       '4-seater sedan': 1,
-//       '7-seater SUV': 1,
-//       '7-seater MUV': 1
-//     };
-//     console.log("Calculated Fare:", fare);
-//     return fare;
-//   } catch (error) {
-//     console.error('Error in fare calculation:', error.message);
-//     throw new Error('Fare calculation failed');
-//   }
-// }
 
 module.exports.getFare = getFare;
 
