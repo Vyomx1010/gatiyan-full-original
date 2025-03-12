@@ -21,6 +21,7 @@
     "modulename": "^0.0.4",
     "nodemailer": "^6.10.0",
     "ola-maps": "^0.0.6",
+    "olamaps-web-sdk": "^1.1.2",
     "pigeon-maps": "^0.22.1",
     "pigeon-marker": "^0.3.4",
     "react": "^18.3.1",
