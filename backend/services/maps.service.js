@@ -3,9 +3,9 @@ const https = require('https');
 const captainModel = require('../models/captain.model');
 require('dotenv').config();
 
-// Set up Axios options with a 15-second timeout.
+// Set up Axios options with a 30-second timeout.
 let axiosOptions = {
-  timeout: 15000, // 15-second timeout
+  timeout: 30000, // Increased timeout to 30 seconds
 };
 
 // If running in Node (i.e. no window), force IPv4 and set a default User-Agent.
@@ -29,11 +29,11 @@ module.exports.getAddressCoordinate = async (input) => {
 
   // Check if the input is a lat,lng pair (reverse geocoding) or an address.
   if (/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(trimmedInput)) {
-    // Reverse geocoding
-    url = `https://maps.gomaps.pro/maps/api/geocode/json?latlng=${encodeURIComponent(trimmedInput)}&key=${apiKey}`;
+    // Reverse geocoding endpoint from Ola Maps
+    url = `https://api.olamaps.io/places/v1/reverse-geocode?latlng=${encodeURIComponent(trimmedInput)}&api_key=${apiKey}`;
   } else {
-    // Forward geocoding
-    url = `https://maps.gomaps.pro/maps/api/geocode/json?address=${encodeURIComponent(trimmedInput)}&key=${apiKey}`;
+    // Forward geocoding endpoint from Ola Maps
+    url = `https://api.olamaps.io/places/v1/geocode?address=${encodeURIComponent(trimmedInput)}&api_key=${apiKey}`;
   }
 
   console.log('[maps.service] Request URL:', url);
@@ -41,8 +41,9 @@ module.exports.getAddressCoordinate = async (input) => {
   try {
     const response = await axiosInstance.get(url);
     console.log('[maps.service] API response:', response.data);
-    if (response.data.status === 'OK' && response.data.results.length > 0) {
-      const result = response.data.results[0];
+    // Ola Maps returns status "ok" and geocodingResults array
+    if (response.data.status === 'ok' && response.data.geocodingResults && response.data.geocodingResults.length > 0) {
+      const result = response.data.geocodingResults[0];
       return {
         ltd: result.geometry.location.lat,
         lng: result.geometry.location.lng,
@@ -63,17 +64,31 @@ module.exports.getDistanceTime = async (origin, destination) => {
   }
 
   const apiKey = process.env.GOMAPPRO_API_KEY;
-  const url = `https://maps.gomaps.pro/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${apiKey}`;
+  // If origin is not a coordinate string, convert it.
+  if (!/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(origin)) {
+    const originCoord = await module.exports.getAddressCoordinate(origin);
+    origin = `${originCoord.ltd},${originCoord.lng}`;
+  }
+  // If destination is not a coordinate string, convert it.
+  if (!/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(destination)) {
+    const destCoord = await module.exports.getAddressCoordinate(destination);
+    destination = `${destCoord.ltd},${destCoord.lng}`;
+  }
+
+  // Use Ola Maps distance matrix basic endpoint
+  const url = `https://api.olamaps.io/routing/v1/distanceMatrix/basic?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&api_key=${apiKey}`;
 
   try {
     const response = await axiosInstance.get(url);
-    if (response.data.status === 'OK') {
+    console.log('[maps.service] DistanceMatrix API response:', response.data);
+    if (response.data && response.data.rows && response.data.rows.length > 0 &&
+        response.data.rows[0].elements && response.data.rows[0].elements.length > 0) {
       if (response.data.rows[0].elements[0].status === 'ZERO_RESULTS') {
         throw new Error('No routes found');
       }
       return response.data.rows[0].elements[0];
     } else {
-      throw new Error('Unable to fetch distance and time');
+      throw new Error('Invalid response from distance matrix API');
     }
   } catch (err) {
     console.error('[maps.service] Error in getDistanceTime:', err.message);
@@ -87,13 +102,15 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
   }
 
   const apiKey = process.env.GOMAPPRO_API_KEY;
-  const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+  // Use Ola Maps autocomplete endpoint
+  const url = `https://api.olamaps.io/places/v1/autocomplete?input=${encodeURIComponent(input)}&api_key=${apiKey}`;
 
   try {
     const response = await axiosInstance.get(url);
-    if (response.data.status === 'OK') {
+    if (response.data && Array.isArray(response.data.predictions)) {
       return response.data.predictions.map(prediction => prediction.description);
     } else {
+      console.error('[maps.service] Response data:', response.data);
       throw new Error('Unable to fetch suggestions');
     }
   } catch (err) {
@@ -109,9 +126,9 @@ module.exports.getCaptainsInTheRadius = async (lat, lng, radius) => {
         $near: {
           $geometry: {
             type: 'Point',
-            coordinates: [lng, lat], // GeoJSON format: [longitude, latitude]
+            coordinates: [lng, lat],
           },
-          $maxDistance: radius * 1000, // Convert radius (in km) to meters
+          $maxDistance: radius * 1000,
         },
       },
     });

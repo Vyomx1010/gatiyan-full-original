@@ -39,8 +39,8 @@ async function getFare(pickup, destination) {
     for (const type in baseFare) {
       fare[type] = Math.round(
         baseFare[type] +
-        ((distanceTime.distance.value / 1000) * perKmRate[type]) +
-        ((distanceTime.duration.value / 60) * perMinuteRate[type])
+        ((distanceTime.distance / 1000) * perKmRate[type]) +
+        ((distanceTime.duration / 60) * perMinuteRate[type])
       );
     }
     console.log("Calculated Fare:", fare); // Debugging
