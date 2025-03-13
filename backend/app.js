@@ -22,7 +22,6 @@ const app = express();
 // Trust proxy for proper IP handling
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
-
 // Connect to MongoDB
 connectToDb();
 
@@ -31,8 +30,13 @@ app.use(cors({
   origin: process.env.FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // For cookies/auth tokens
+  credentials: true
 }));
+
+// ✅ Fix for CORS Preflight returning 204
+app.options('*', (req, res) => {
+  res.sendStatus(200); // Ensure proper 200 response for OPTIONS requests
+});
 
 // 2. Helmet for secure HTTP headers
 app.use(helmet({
@@ -84,7 +88,7 @@ app.use('/api/captains', captainRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin-hubhaimere-sepanga-matlena', adminRoutes);
 app.use('/api/contact', contactRoutes);
 
 // 9. Error Handling Middleware

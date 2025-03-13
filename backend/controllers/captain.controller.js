@@ -110,32 +110,48 @@ module.exports.registerCaptain = async (req, res, next) => {
 };
 
 module.exports.verifyEmailOTP = async (req, res, next) => {
-  const { email, otp } = req.body;
+  try {
+    const { email, otp } = req.body;
 
-  // Trim and normalize OTP
-  const normalizedOTP = otp.trim();
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
 
-  const captain = await captainModel.findOne({ email }).select("+emailOTP");
+    // Trim and normalize OTP
+    const normalizedOTP = otp.trim();
 
-  if (!captain) {
-    return res.status(404).json({ message: "Captain not found" });
+    // Find captain
+    const captain = await captainModel.findOne({ email }).select("+emailOTP");
+
+    if (!captain) {
+      return res.status(404).json({ message: "Captain not found" });
+    }
+
+    // Trim and normalize stored OTP
+    const storedOTP = captain.emailOTP ? captain.emailOTP.trim() : '';
+
+    // Debugging: Log the OTPs
+    console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
+
+    // OTP validation
+    if (String(storedOTP) !== String(normalizedOTP)) {
+      console.log(`OTP Mismatch: Entered ${normalizedOTP}, Expected ${storedOTP}`);
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Mark email as verified
+    captain.emailVerified = true;
+    await captain.save();
+
+    console.log("Captain email verified successfully for:", email);
+
+    return res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Error in verifyEmailOTP:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-
-  // Trim and normalize stored OTP
-  const storedOTP = captain.emailOTP.trim();
-
-  // Debugging: Log the OTPs
-  console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
-
-  if (String(storedOTP).trim() !== String(normalizedOTP).trim()) {
-    return res.status(400).json({ message: "Invalid OTP" });
-  }
-
-  captain.emailVerified = true;
-  await captain.save();
-
-  res.status(200).json({ message: "Email verified successfully" });
 };
+
 
 module.exports.loginCaptain = async (req, res, next) => {
   const errors = validationResult(req);
@@ -179,14 +195,17 @@ module.exports.loginCaptain = async (req, res, next) => {
   res.status(200).json({ token, captain });
 };
 
-module.exports.getCaptainProfile = async (req, res, next) => {
-  if (!req.captain) {
-    console.log('No captain found in request');
-    return res.status(404).json({ message: 'Captain not found' });
+module.exports.getCaptainProfile = async (req, res) => {
+  try {
+    const captain = await captainModel.findById(req.captain._id);
+    if (!captain) {
+      return res.status(404).json({ message: "Captain not found" });
+    }
+    res.status(200).json(captain);
+  } catch (error) {
+    console.error("Error fetching captain profile:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-
-  console.log('Returning captain profile:', req.captain);
-  res.status(200).json({ captain: req.captain });
 };
 
 module.exports.logoutCaptain = async (req, res, next) => {
