@@ -6,13 +6,13 @@ import { FaWhatsapp, FaPhone } from 'react-icons/fa';
 const stats = [
   { 
     label: 'Fast book using WhatsApp', 
-    value: '+917470320917', 
+    value: '+91 7470320917', 
     icon: FaWhatsapp, 
     url: 'https://wa.me/917470320917' 
   },
   { 
-    label: 'Fast book by Call', 
-    value: '+917470320917', 
+    label: 'Fast book using Calling services', 
+    value: '+91 7470320917', 
     icon: FaPhone, 
     url: 'tel:+917470320917' 
   },
@@ -38,11 +38,13 @@ const StatsSection = () => {
                     transition={{ type: "spring", stiffness: 300 }}
                     className="cursor-pointer p-6 bg-gray-800 rounded-lg hover:bg-gray-700 transition"
                   >
-                    <div className="flex justify-center items-center mb-4">
-                      <IconComponent className="text-5xl" />
-                    </div>
-                    <div className="text-4xl font-bold mb-2">{stat.value}</div>
+                    <div className="flex justify-center items-center mb-4 text-5xl">
                     <div className="text-gray-400">{stat.label}</div>
+                    </div>
+                    <div className="flex justify-center items-center mb-4 text-5xl">
+                    <div className="text-3xl font-bold mb-2 flex"><IconComponent className='text-5xl'/> &nbsp; {stat.value}</div>
+                    </div>
+                      
                   </motion.div>
                 </a>
               </FadeInSection>
