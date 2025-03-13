@@ -27,7 +27,6 @@
     "mongoose": "^8.8.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
-    "ola-maps": "^0.0.6",
     "olamaps-web-sdk": "^1.1.2",
     "path": "^0.12.7",
     "razorpay": "^2.9.5",
@@ -35,6 +34,7 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@types/node": "^22.13.10",
     "nodemon": "^3.1.9"
   }
 }
