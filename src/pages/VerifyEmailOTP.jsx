@@ -69,7 +69,7 @@ const VerifyEmailOTP = () => {
       const endpoint = userType === 'captain'
         ? `${import.meta.env.VITE_BACKEND_URL}/captains/resend-otp`
         : `${import.meta.env.VITE_BACKEND_URL}/users/resend-otp`;
-      const response = await axios.post(endpoint, { email, mobileNumber });
+      const response = await axios.post(endpoint, { email});
       setSuccess(response.data.message);
       setError('');
       setCooldown(120); // Set 2-minute cooldown (120 seconds)
@@ -97,7 +97,7 @@ const VerifyEmailOTP = () => {
 
   const handlePopupOk = () => {
     setSuccess('');
-    navigate(userType === 'captain' ? '/captain-home' : '/home');
+    navigate(userType === 'captain' ? '/captain-login' : '/login');
   };
 
   return (

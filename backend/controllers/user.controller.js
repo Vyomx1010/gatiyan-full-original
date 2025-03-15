@@ -114,7 +114,7 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  const storedOTP = user.emailOTP ? user.emailOTP.trim() : '';
+  const storedOTP = user.emailOTP.trim();
 
   console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
 
@@ -128,7 +128,7 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
 
   console.log("Email verified successfully for:", email);
 
-  return res.status(200).json({ message: "Email verified successfully" });
+  res.status(200).json({ message: "Email verified successfully" });
 };
 
 

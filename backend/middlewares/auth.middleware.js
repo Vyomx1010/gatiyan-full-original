@@ -10,7 +10,7 @@ module.exports.authUser = async (req, res, next) => {
 
   console.log('authUser - Token received:', token);
 
-  if (!token || typeof token !== 'string' || token.trim() === '') {
+  if (token === null || token === undefined || typeof token !== 'string' || token.trim() === '') {
     console.log('authUser - No valid token provided');
     return res.status(401).json({ message: 'Unauthorized: No valid token provided' });
   }
@@ -45,45 +45,40 @@ module.exports.authUser = async (req, res, next) => {
   }
 };
 
-
 module.exports.authCaptain = async (req, res, next) => {
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+
+  console.log('authCaptain - Token received:', token);
+
+  if (token === null || token === undefined || typeof token !== 'string' || token.trim() === '') {
+    console.log('authCaptain - No valid token provided');
+    return res.status(401).json({ message: 'Unauthorized: No valid token provided' });
+  }
+
   try {
-    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
-
-    console.log('authCaptain - Token received:', token);
-
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      console.log('authCaptain - No valid token provided');
-      return res.status(401).json({ message: 'Unauthorized: No valid token provided' });
-    }
-
-    // Check if token is blacklisted
     const isBlacklisted = await blackListTokenModel.findOne({ token });
     if (isBlacklisted) {
       console.log('authCaptain - Token is blacklisted');
       return res.status(401).json({ message: 'Unauthorized: Token is blacklisted' });
     }
 
-    // Validate JWT format
     if (token.split('.').length !== 3) {
       console.log('authCaptain - Invalid token format');
       return res.status(401).json({ message: 'Unauthorized: Invalid token format' });
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('authCaptain - Decoded token:', decoded);
 
-    // Find captain in the database
     const captain = await captainModel.findById(decoded._id);
 
     if (!captain) {
-      console.log('authCaptain - Captain not found.');
-      return res.status(401).json({ message: "Unauthorized: Captain not found" });
+      console.log('authCaptain - Captain not found, proceeding without error.');
+      req.captain = null;
+    } else {
+      req.captain = captain;
     }
 
-    // Attach captain to the request object
-    req.captain = captain;
     next();
   } catch (err) {
     console.error('Error in authCaptain middleware:', err);

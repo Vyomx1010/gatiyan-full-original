@@ -22,7 +22,7 @@ module.exports.createOrder = async (amount, rideId) => {
   return await razorpay.orders.create(options);
 };
 
-// ✅ Verify Payment & Update Ride
+// ✅ Verify Payment & Update Ride 
 module.exports.verifyPayment = async (rideId, orderId, transactionId) => {
   try {
     // Fetch payment from Razorpay

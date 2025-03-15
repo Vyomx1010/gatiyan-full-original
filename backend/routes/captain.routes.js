@@ -64,7 +64,6 @@ router.get('/profile', (req, res, next) => {
   console.log('Route - /captains/profile invoked');
   next();
 }, authMiddleware.authCaptain, captainController.getCaptainProfile);
-
 router.get("/logout", authMiddleware.authCaptain, captainController.logoutCaptain);
 
 // router.get("/dashboard/:captainId", captainController.getCaptainDashboard);
