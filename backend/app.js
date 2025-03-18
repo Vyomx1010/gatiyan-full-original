@@ -83,7 +83,7 @@ app.get('/', (req, res) => {
 });
 
 // 8. API Routes
-app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
 app.use('/api/captains', captainRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/rides', rideRoutes);

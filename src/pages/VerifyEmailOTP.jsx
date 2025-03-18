@@ -9,9 +9,9 @@ const VerifyEmailOTP = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [cooldown, setCooldown] = useState(0); // Tracks cooldown in seconds
+  const [loading, setLoading] = useState(false);  // <-- Loader state added
+  const [cooldown, setCooldown] = useState(0); 
 
-  // Create refs for each OTP input
   const inputRefs = useRef([]);
 
   const handleChange = (index, value) => {
@@ -20,7 +20,6 @@ const VerifyEmailOTP = () => {
     newOtp[index] = value;
     setOtp(newOtp);
     if (value && index < 5) {
-      // Use refs for smoother focus transition
       const nextInput = inputRefs.current[index + 1];
       if (nextInput) {
         setTimeout(() => nextInput.focus(), 100);
@@ -46,21 +45,26 @@ const VerifyEmailOTP = () => {
       setError('Please enter all 6 digits');
       return;
     }
+
+    setLoading(true);  // <-- Start loader
+
     const completeOtp = otp.join('');
     console.log('Submitting Email OTP:', completeOtp);
     try {
       const endpoint = userType === 'captain' 
         ? `${import.meta.env.VITE_BACKEND_URL}/captains/verify-email-otp`
         : `${import.meta.env.VITE_BACKEND_URL}/users/verify-email-otp`;
+      
       const response = await axios.post(endpoint, { email, otp: completeOtp });
       console.log('Server Response:', response.data);
       setSuccess(response.data.message);
       setError('');
-      // Do not navigate automatically—wait for user confirmation via popup.
     } catch (err) {
       console.error('Error verifying OTP:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to verify OTP. Please try again.');
       setSuccess('');
+    } finally {
+      setLoading(false);  // <-- Stop loader
     }
   };
 
@@ -69,10 +73,10 @@ const VerifyEmailOTP = () => {
       const endpoint = userType === 'captain'
         ? `${import.meta.env.VITE_BACKEND_URL}/captains/resend-otp`
         : `${import.meta.env.VITE_BACKEND_URL}/users/resend-otp`;
-      const response = await axios.post(endpoint, { email});
+      const response = await axios.post(endpoint, { email });
       setSuccess(response.data.message);
       setError('');
-      setCooldown(120); // Set 2-minute cooldown (120 seconds)
+      setCooldown(120);
     } catch (err) {
       console.error('Error resending OTP:', err.response?.data || err.message);
       const errorMsg = err.response?.data?.message || 'Failed to resend OTP. Please try again.';
@@ -87,7 +91,6 @@ const VerifyEmailOTP = () => {
     }
   };
 
-  // Handle cooldown timer
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setInterval(() => setCooldown(prev => prev - 1), 1000);
@@ -127,7 +130,9 @@ const VerifyEmailOTP = () => {
               />
             ))}
           </div>
+
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
           <div className="mt-4 bg-gray-50 p-4 rounded-md">
             <div className="text-sm text-gray-700">
               <p>
@@ -135,14 +140,19 @@ const VerifyEmailOTP = () => {
               </p>
             </div>
           </div>
+
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={loading}
             >
-              Verify
+              {loading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 border-4 border-white border-t-transparent rounded-full" viewBox="0 0 24 24"></svg>
+              ) : 'Verify'}
             </button>
           </div>
+
           <div>
             <button
               type="button"
@@ -159,7 +169,6 @@ const VerifyEmailOTP = () => {
           </div>
         </form>
 
-        {/* Success Popup */}
         {success && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg">
