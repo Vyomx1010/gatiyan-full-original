@@ -8,7 +8,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:3000',
+      '/maps': 'http://localhost:3000', 
+      '/users': 'http://localhost:3000', 
+      '/contact': 'http://localhost:3000',
+      '/payments': 'http://localhost:3000',
+      '/captains': 'http://localhost:3000', 
+      '/admin-hubhaimere-sepanga-matlena': 'http://localhost:3000', 
     },
   },
 });

@@ -96,7 +96,7 @@ const Home = () => {
         setPickupSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching pickup suggestions:', error);
-        setErrorModal("Error fetching pickup suggestions: " + error.message);
+        // setErrorModal("Error fetching pickup suggestions: " + error.message);
       }
     } else {
       setPickupSuggestions([]);
@@ -118,7 +118,7 @@ const Home = () => {
         setDestinationSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching destination suggestions:', error);
-        setErrorModal("Error fetching destination suggestions: " + error.message);
+        // setErrorModal("Error fetching destination suggestions: " + error.message);
       }
     } else {
       setDestinationSuggestions([]);
