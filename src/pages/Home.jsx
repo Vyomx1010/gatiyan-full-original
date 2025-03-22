@@ -281,15 +281,15 @@ const Home = () => {
       <Usersnavbar />
 
       {/* Main Content */}
-      <div className="min-h-screen bg-gray-100 text-gray-800 overflow-y-auto mt-8">
+      <div className="min-h-screen bg-gray-100 text-gray-800 overflow-y-auto mt-8 p-2">
         {/* Bottom Panel with a dynamic progress header */}
-        <div className="p-6 bg-gray-200 relative">
+        <div className="p-2 bg-gray-200 relative">
           <div className="mb-4">
             {/* Dynamic Step Progress Indicator */}
-            <p className="text-sm text-gray-600">
+            <p className=" ml-16 text-sm text-gray-600">
               Step: <span className="font-semibold">{currentStep.toUpperCase()}</span>
             </p>
-            <div className="h-1 bg-gray-300 rounded-full overflow-hidden">
+            <div className=" h-1 bg-gray-300 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 transition-all duration-300"
                 style={{
