@@ -5,7 +5,7 @@ import suv from "../assets/SUVcar.png";
 import hatchback from "../assets/hackback.png";
 
 const VehiclePanel = (props) => {
-  // Vehicle types with their labels and updated static image URLs (MUV removed)
+  // Vehicle types with their labels and updated static image URLs
   const vehicleTypes = [
     {
       type: '4-seater hatchback',
@@ -31,75 +31,71 @@ const VehiclePanel = (props) => {
   ];
 
   return (
-    <div>
-      {/* “Close” icon or arrow */}
-      <h5
-        className="p-1 text-center w-[93%] absolute top-0 cursor-pointer"
-        onClick={() => {
-          props.setVehiclePanel(false);
-        }}
-      >
-        <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
-      </h5>
+    <div className="bg-white rounded-t-2xl shadow-lg p-4 pt-8 relative">
+      
 
-      <h3 className="text-2xl font-semibold mb-5">Choose a Vehicle</h3>
+      <h3 className="text-2xl font-semibold mb-5 text-center">Choose a Vehicle</h3>
 
-      {/* Mapping through vehicle types to generate UI */}
-      {vehicleTypes.map((vehicle, index) => {
-        const backendFare = props.fare[vehicle.type] ?? 0;
-        const discountPercentage = 20;
-        const inflatedPrice = Math.round(
-          backendFare * (100 + discountPercentage) / 100
-        );
+      {/* Vehicle options */}
+      <div className="space-y-3">
+        {vehicleTypes.map((vehicle, index) => {
+          const backendFare = props.fare[vehicle.type] ?? 0;
+          const discountPercentage = 20;
+          const inflatedPrice = Math.round(
+            backendFare * (100 + discountPercentage) / 100
+          );
 
-        return (
-          <div
-            key={index}
-            onClick={() => {
-              props.setConfirmRidePanel(true);
-              props.selectVehicle(vehicle.type);
-            }}
-            className="flex border-2 active:border-black mb-2 rounded-xl w-full p-3 items-center justify-between cursor-pointer transition-colors hover:bg-gray-50"
-          >
-            {/* Vehicle Image */}
-            <img
-              className="h-14 w-24 object-cover rounded"
-              src={vehicle.image}
-              alt={vehicle.label}
-            />
-
-            {/* Vehicle Info */}
-            <div className="ml-2 w-1/2">
-              <h4 className="font-medium text-base flex items-center gap-2">
-                {vehicle.label}
-                <span className="text-sm text-gray-500 flex items-center gap-1">
-                  <i className="ri-user-3-fill text-lg"></i>
-                  {vehicle.seatCount}
-                </span>
-              </h4>
-              <h5 className="font-medium text-sm text-gray-700">2 mins away</h5>
-              <p className="text-xs text-gray-500">{vehicle.description}</p>
-            </div>
-
-            {/* Fare & Offer Display */}
-            <div className="text-right">
-              <div className="flex items-center justify-end gap-2">
-                <span className="line-through text-gray-400 text-sm">
-                  ₹{inflatedPrice}
-                </span>
-                <span className="text-lg font-semibold text-gray-800">
-                  ₹{backendFare}
-                </span>
+          return (
+            <div
+              key={index}
+              onClick={() => {
+                props.setConfirmRidePanel(true);
+                props.selectVehicle(vehicle.type);
+              }}
+              className="flex border-2 rounded-xl p-3 items-center justify-between cursor-pointer transition-all hover:bg-gray-50 active:border-black"
+            >
+              {/* Vehicle Image */}
+              <div className="flex-shrink-0">
+                <img
+                  className="h-16 w-24 object-contain rounded"
+                  src={vehicle.image}
+                  alt={vehicle.label}
+                />
               </div>
-              {backendFare > 0 && (
-                <p className="text-sm text-green-600 font-semibold">
-                  {discountPercentage}% OFF
-                </p>
-              )}
+
+              {/* Vehicle Info */}
+              <div className="flex-grow ml-3 max-w-[50%]">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium text-base">{vehicle.label}</h4>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <i className="ri-user-3-fill text-lg"></i>
+                    <span className="ml-1">{vehicle.seatCount}</span>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-gray-700 mt-1">2 mins away</div>
+                <p className="text-xs text-gray-500 mt-1">{vehicle.description}</p>
+              </div>
+
+              {/* Fare & Offer Display */}
+              <div className="text-right">
+                <div className="flex flex-col items-end">
+                  <span className="line-through text-gray-400 text-sm">
+                    ₹{inflatedPrice}
+                  </span>
+                  <span className="text-lg font-semibold text-gray-800">
+                    ₹{backendFare}
+                  </span>
+                </div>
+                {backendFare > 0 && (
+                  <div className="text-sm text-green-600 font-medium mt-1">
+                    {discountPercentage}% OFF
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

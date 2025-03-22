@@ -7,9 +7,59 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import LiveTracking from '../components/LiveTracking';
 import { FaLocationArrow, FaArrowLeft } from 'react-icons/fa';
 import Usersnavbar from '../components/Usersnavbar';
+
+// DynamicHero Component
+const DynamicHero = () => {
+  // Array of headlines and subtexts to rotate through
+  const headlines = [
+    "Your Ride, Your Journey",
+    "Seamless Trips Await You",
+    "Discover New Destinations"
+  ];
+  const subtexts = [
+    "Find the best trips and enjoy a seamless ride experience.",
+    "Experience comfort and convenience on every ride.",
+    "Travel smart with our efficient ride service."
+  ];
+  const buttonText = "Get Started";
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % headlines.length);
+    }, 4000); // rotate every 4 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section
+      className="relative flex items-center justify-center h-[50vh] bg-cover bg-center"
+      style={{
+        backgroundImage: "url('https://source.unsplash.com/1600x900/?city,ride')"
+      }}
+    >
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+      <div className="relative text-center text-white px-4">
+        <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
+          {headlines[currentIndex]}
+        </h1>
+        <p className="text-lg md:text-xl mb-6 animate-fade-in">
+          {subtexts[currentIndex]}
+        </p>
+        <button
+          onClick={() =>
+            window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+          }
+          className="bg-blue-600 hover:bg-blue-700 transition-all text-white py-2 px-6 rounded-full text-lg animate-pulse"
+        >
+          {buttonText}
+        </button>
+      </div>
+    </section>
+  );
+};
 
 const Home = () => {
   // Steps for the bottom panel
@@ -96,7 +146,6 @@ const Home = () => {
         setPickupSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching pickup suggestions:', error);
-        // setErrorModal("Error fetching pickup suggestions: " + error.message);
       }
     } else {
       setPickupSuggestions([]);
@@ -118,7 +167,6 @@ const Home = () => {
         setDestinationSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching destination suggestions:', error);
-        // setErrorModal("Error fetching destination suggestions: " + error.message);
       }
     } else {
       setDestinationSuggestions([]);
@@ -226,65 +274,43 @@ const Home = () => {
 
   return (
     <>
-      <style>{`
-        /* Slide animations for CSSTransition */
-        .slide-enter {
-          opacity: 0;
-          transform: translateY(20%);
-        }
-        .slide-enter-active {
-          opacity: 1;
-          transform: translateY(0);
-          transition: all 300ms ease-out;
-        }
-        .slide-exit {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .slide-exit-active {
-          opacity: 0;
-          transform: translateY(20%);
-          transition: all 300ms ease-out;
-        }
-        
-        /* Additional Animations */
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-in-out;
-        }
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .animate-pulse {
-          animation: pulse 1.5s infinite;
-        }
-        @keyframes modal-zoom {
-          from { transform: scale(0.8); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-modal {
-          animation: modal-zoom 0.3s ease-out;
-        }
-      `}</style>
-      <Usersnavbar />
-      <div className="min-h-screen bg-gray-100 text-gray-800 overflow-y-auto">
-        {/* Map always visible */}
-        <div style={{ height: '50vh' }}>
-          <LiveTracking sourceCoords={sourceCoords} destinationCoords={destinationCoords} />
-        </div>
+      {/* Dynamic Hero Section */}
+      <DynamicHero />
 
-        {/* Bottom Panel */}
-        <div style={{ minHeight: '40vh' }} className="p-6 bg-gray-200 relative">
+      {/* Navbar */}
+      <Usersnavbar />
+
+      {/* Main Content */}
+      <div className="min-h-screen bg-gray-100 text-gray-800 overflow-y-auto mt-8">
+        {/* Bottom Panel with a dynamic progress header */}
+        <div className="p-6 bg-gray-200 relative">
+          <div className="mb-4">
+            {/* Dynamic Step Progress Indicator */}
+            <p className="text-sm text-gray-600">
+              Step: <span className="font-semibold">{currentStep.toUpperCase()}</span>
+            </p>
+            <div className="h-1 bg-gray-300 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-600 transition-all duration-300"
+                style={{
+                  width:
+                    currentStep === 'input'
+                      ? '33%'
+                      : currentStep === 'vehicle'
+                      ? '66%'
+                      : (currentStep === 'confirm' || currentStep === 'confirmed')
+                      ? '100%'
+                      : '0%'
+                }}
+              ></div>
+            </div>
+          </div>
+
           {/* Back Icon */}
           {currentStep !== 'input' && (
             <button
               onClick={handleBack}
-              className="absolute top-1 left-4 text-xl text-black hover:text-gray-700 z-[60] "
+              className="absolute top-1 left-4 text-xl text-black hover:text-gray-700 z-[60]"
               title="Go Back"
             >
               <FaArrowLeft />
@@ -294,7 +320,9 @@ const Home = () => {
           {/* Loader Overlay */}
           {isLoading && (
             <div className="absolute inset-0 bg-gray-300 bg-opacity-75 flex items-center justify-center z-50">
-              <div className="text-xl font-semibold text-gray-800 animate-pulse">Loading...</div>
+              <div className="text-xl font-semibold text-gray-800 animate-pulse">
+                Loading...
+              </div>
             </div>
           )}
 
@@ -345,7 +373,7 @@ const Home = () => {
                             setErrorModal("Geolocation is not supported by this browser.");
                           }
                         }}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-700 animate-pulse"
+                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-600 hover:text-gray-700 animate-pulse"
                       >
                         <FaLocationArrow className="text-xl" />
                       </button>

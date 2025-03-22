@@ -44,7 +44,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://checkout.razorpay.com"], 
-      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel"], 
+      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel.app"], 
     }
   }
 }));

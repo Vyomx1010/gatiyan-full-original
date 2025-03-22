@@ -6,14 +6,5 @@ export default defineConfig({
   build: {
     outDir: "dist",
   },
-  server: {
-    proxy: {
-      '/maps': 'http://localhost:3000', 
-      '/users': 'http://localhost:3000', 
-      '/contact': 'http://localhost:3000',
-      '/payments': 'http://localhost:3000',
-      '/captains': 'http://localhost:3000', 
-      '/admin-hubhaimere-sepanga-matlena': 'http://localhost:3000', 
-    },
-  },
+  server: {},
 });

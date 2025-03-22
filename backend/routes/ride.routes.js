@@ -16,7 +16,7 @@ router.post(
       .withMessage("Invalid vehicle type"),
     body("rideDate").isString().notEmpty().withMessage("Ride date is required"),
     body("rideTime").isString().notEmpty().withMessage("Ride time is required"),
-    body("paymentType").isString().isIn(["cash", "online"]).withMessage("Invalid payment type"), // ✅ Fix: Ensure paymentType is included
+    body("paymentType").isString().isIn(["cash", "online"]).withMessage("Invalid payment type"),
     rideController.createRide
   );
 
