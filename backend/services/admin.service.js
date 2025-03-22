@@ -9,11 +9,11 @@ module.exports.createAdmin = async ({ email, password }) => {
 
 module.exports.authenticateAdmin = async ({ email, password }) => {
   const admin = await Admin.findOne({ email }).select("+password"); // ✅ Ensure password is fetched
-  console.log("🛠 Admin Found:", admin); // ✅ Debugging
+  // console.log("🛠 Admin Found:", admin); // ✅ Debugging
   if (!admin) throw new Error("Admin not found");
 
   const isMatch = await bcrypt.compare(password, admin.password);
-  console.log("🛠 Password Match:", isMatch); // ✅ Debugging
+  // console.log("🛠 Password Match:", isMatch); // ✅ Debugging
   if (!isMatch) throw new Error("Invalid credentials");
 
   // ✅ Generate JWT token manually

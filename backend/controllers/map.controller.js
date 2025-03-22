@@ -9,11 +9,11 @@ module.exports.getCoordinates = async (req, res, next) => {
   }
 
   const { address } = req.query;
-  console.log('[map.controller] Received address:', address);
+  // console.log('[map.controller] Received address:', address);
 
   try {
     const coordinates = await mapService.getAddressCoordinate(address);
-    console.log('[map.controller] Coordinates found:', coordinates);
+    // console.log('[map.controller] Coordinates found:', coordinates);
     return res.status(200).json(coordinates);
   } catch (error) {
     console.error('[map.controller] Error fetching coordinates:', error.message);

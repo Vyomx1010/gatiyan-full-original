@@ -128,14 +128,14 @@ module.exports.createRide = async (req, res) => {
     // Send email to admin and user
     if (adminEmail) {
       await sendEmail(adminEmail, 'New Ride Request', emailContent);
-      console.log(`✅ Confirmation email sent to admin: ${adminEmail}`);
+      // console.log(`✅ Confirmation email sent to admin: ${adminEmail}`);
     } else {
       console.error("No admin email provided in environment variables.");
     }
 
     if (user && user.email) {
       await sendEmail(user.email, 'Thanks for Ride Request', emailContent);
-      console.log(`✅ Confirmation email sent to user: ${user.email}`);
+      // console.log(`✅ Confirmation email sent to user: ${user.email}`);
     } else {
       console.error("No recipient email provided for the ride user.");
     }
@@ -328,14 +328,14 @@ module.exports.confirmRide = async (req, res) => {
     // Send confirmation email to ride user and admin
     if (ride.user && ride.user.email) {
       await sendEmail(ride.user.email, "Ride Confirmation", emailContent);
-      console.log(`✅ Confirmation email sent to user: ${ride.user.email}`);
+      // console.log(`✅ Confirmation email sent to user: ${ride.user.email}`);
     } else {
       console.error("No recipient email provided for the ride user.");
     }
 
     if (process.env.ADMIN_EMAIL) {
       await sendEmail(process.env.ADMIN_EMAIL, "New Ride Payment", emailContent);
-      console.log(`✅ Confirmation email sent to admin: ${process.env.ADMIN_EMAIL}`);
+      // console.log(`✅ Confirmation email sent to admin: ${process.env.ADMIN_EMAIL}`);
     } else {
       console.error("No admin email provided in environment variables.");
     }
@@ -357,7 +357,7 @@ module.exports.startRide = async (req, res) => {
 
   try {
       const ride = await rideService.startRide({ rideId, otp, captain: req.captain });
-      console.log(ride);
+      // console.log(ride);
       return res.status(200).json(ride);
   } catch (err) {
       return res.status(500).json({ message: err.message });
@@ -435,13 +435,13 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
 
 module.exports.getAllRidesForCaptains = async (req, res) => {
   try {
-      console.log("🚀 Fetching pending rides for captains...");
+      // console.log("🚀 Fetching pending rides for captains...");
 
       const rides = await rideModel.find({ status: "pending" })
           .select("pickup destination rideDate rideTime fare status createdAt")
           .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
 
-      console.log("✅ Total Pending Rides Fetched:", rides.length);
+      // console.log("✅ Total Pending Rides Fetched:", rides.length);
       res.status(200).json(rides);
   } catch (err) {
       console.error("❌ Error fetching rides:", err);

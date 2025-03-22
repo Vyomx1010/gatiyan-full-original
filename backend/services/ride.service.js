@@ -14,7 +14,7 @@ async function getFare(pickup, destination) {
       throw new Error('Invalid response from GoMaps API');
     }
     
-    console.log("Distance & Time Data:", distanceTime); // Debugging
+    // console.log("Distance & Time Data:", distanceTime); // Debugging
 
     const baseFare = { 
       '4-seater hatchback': 30, 
@@ -43,7 +43,7 @@ async function getFare(pickup, destination) {
         ((distanceTime.duration / 60) * perMinuteRate[type])
       );
     }
-    console.log("Calculated Fare:", fare); // Debugging
+    // console.log("Calculated Fare:", fare); // Debugging
     return fare;
   } catch (error) {
     console.error('Error in fare calculation:', error.message);

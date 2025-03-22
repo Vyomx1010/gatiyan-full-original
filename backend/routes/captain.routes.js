@@ -61,7 +61,7 @@ router.post(
 );
 
 router.get('/profile', (req, res, next) => {
-  console.log('Route - /captains/profile invoked');
+  // console.log('Route - /captains/profile invoked');
   next();
 }, authMiddleware.authCaptain, captainController.getCaptainProfile);
 router.get("/logout", authMiddleware.authCaptain, captainController.logoutCaptain);

@@ -105,7 +105,7 @@ router.post('/rides/:id/status', authMiddleware.authAdmin, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Ride not found' });
     }
     
-    console.log("Updated ride:", ride);
+    // console.log("Updated ride:", ride);
    
     // Send email notification (existing code remains)
     if (ride.user && ride.user.email) {

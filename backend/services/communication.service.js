@@ -65,31 +65,13 @@ module.exports.sendEmailOTP = async (email, otp) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`✅ OTP email sent to ${email}`);
+    // console.log(`✅ OTP email sent to ${email}`);
   } catch (error) {
     console.error('❌ Error sending OTP email:', error);
     throw new Error('Failed to send OTP email');
   }
 };
 
-// Send OTP via SMS using 2Factor API
-module.exports.sendSMSOTP = async (mobileNumber, otp) => {
-  if (!mobileNumber.startsWith('+91')) {
-    mobileNumber = `+91${mobileNumber}`;
-  }
-
-  try {
-    const url = `https://2factor.in/API/V1/${process.env.TWO_FACTOR_API_KEY}/SMS/${mobileNumber}/${otp}/Your%20OTP%20for%20Signup`;
-    const response = await axios.get(url);
-    console.log('2Factor response:', response.data);
-    if (response.data.Status !== 'Success') {
-      throw new Error('2Factor SMS send failed');
-    }
-  } catch (error) {
-    console.error('Error sending SMS via 2Factor:', error);
-    throw new Error('Failed to send SMS OTP');
-  }
-};
 
 // Send a generic email using HTML content and styled template
 module.exports.sendEmail = async (to, subject, html) => {
@@ -107,7 +89,7 @@ module.exports.sendEmail = async (to, subject, html) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent to ${to}`);
+    // console.log(`✅ Email sent to ${to}`);
   } catch (error) {
     console.error('❌ Error sending email:', error);
     throw new Error('Failed to send email');

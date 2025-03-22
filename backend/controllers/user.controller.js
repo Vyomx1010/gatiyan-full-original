@@ -14,12 +14,12 @@ module.exports.registerUser = async (req, res, next) => {
   const { fullname, email, password, mobileNumber } = req.body;
   const profilePhoto = req.file ? req.file.path : "";
 
-  console.log("Registering user with data:", {
-    firstname: fullname.firstname,
-    lastname: fullname.lastname,
-    email,
-    mobileNumber,
-  });
+  // console.log("Registering user with data:", {
+  //   firstname: fullname.firstname,
+  //   lastname: fullname.lastname,
+  //   email,
+  //   mobileNumber,
+  // });
 
   let formattedMobileNumber = mobileNumber.trim();
   if (!formattedMobileNumber.startsWith("+91")) {
@@ -55,7 +55,7 @@ module.exports.registerUser = async (req, res, next) => {
 
       // Generate new OTPs
       const emailOTP = generateOTP();
-      console.log("Generated EMAIL OTP:", emailOTP);
+      // console.log("Generated EMAIL OTP:", emailOTP);
 
       user.emailOTP = emailOTP;
       user.password = await userModel.hashPassword(password); // Update password if changed
@@ -68,7 +68,7 @@ module.exports.registerUser = async (req, res, next) => {
       // New user signup
       const hashedPassword = await userModel.hashPassword(password);
       const emailOTP = generateOTP();
-      console.log("Generated EMAIL OTP:", emailOTP);
+      // console.log("Generated EMAIL OTP:", emailOTP);
 
       user = await userService.createUser({
         firstname: fullname.firstname,
@@ -85,7 +85,7 @@ module.exports.registerUser = async (req, res, next) => {
     // Send OTPs
     await sendEmailOTP(user.email, user.emailOTP);
 
-    console.log("OTP sent to email and mobile number");
+    // console.log("OTP sent to email and mobile number");
 
     res.status(201).json({
       message: "OTP sent to email and mobile number",
@@ -93,7 +93,7 @@ module.exports.registerUser = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      console.log("Duplicate key error:", error);
+      // console.log("Duplicate key error:", error);
       let field = Object.keys(error.keyPattern)[0];
       return res.status(400).json({
         message: `Duplicate value found for ${field}. Please use a different ${field}.`,
@@ -116,17 +116,17 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
 
   const storedOTP = user.emailOTP.trim();
 
-  console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
+  // console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
 
   if (String(storedOTP).trim() !== String(normalizedOTP).trim()) {
-    console.log(`Email: ${email}, Entered OTP: ${normalizedOTP}, Stored OTP: ${storedOTP}`);
+    // console.log(`Email: ${email}, Entered OTP: ${normalizedOTP}, Stored OTP: ${storedOTP}`);
     return res.status(400).json({ message: "Invalid OTP" });
   }
 
   user.emailVerified = true;
   await user.save();
 
-  console.log("Email verified successfully for:", email);
+  // console.log("Email verified successfully for:", email);
 
   res.status(200).json({ message: "Email verified successfully" });
 };
@@ -172,7 +172,7 @@ module.exports.loginUser = async (req, res, next) => {
 
   res.cookie("token", token);
 
-  console.log("User logged in successfully:", email);
+  // console.log("User logged in successfully:", email);
 
   res.status(200).json({ token, user });
 };
@@ -180,11 +180,11 @@ module.exports.loginUser = async (req, res, next) => {
 module.exports.getUserProfile = async (req, res, next) => {
   try {
     if (!req.user) {
-      console.log("User not found in request.");
+      // console.log("User not found in request.");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    console.log("Fetching user profile for:", req.user.email);
+    // console.log("Fetching user profile for:", req.user.email);
 
     res.status(200).json(req.user);
   } catch (error) {
@@ -201,7 +201,7 @@ module.exports.logoutUser = async (req, res, next) => {
     await blackListTokenModel.create({ token });
   }
 
-  console.log("User logged out successfully");
+  // console.log("User logged out successfully");
   return res.status(200).json({ message: "Logged out" });
 };
 

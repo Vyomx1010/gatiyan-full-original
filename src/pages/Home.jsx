@@ -145,7 +145,7 @@ const Home = () => {
         );
         setPickupSuggestions(response.data);
       } catch (error) {
-        console.error('Error fetching pickup suggestions:', error);
+        // console.error('Error fetching pickup suggestions:', error);
       }
     } else {
       setPickupSuggestions([]);
@@ -166,7 +166,7 @@ const Home = () => {
         );
         setDestinationSuggestions(response.data);
       } catch (error) {
-        console.error('Error fetching destination suggestions:', error);
+        // console.error('Error fetching destination suggestions:', error);
       }
     } else {
       setDestinationSuggestions([]);
@@ -210,7 +210,7 @@ const Home = () => {
 
       setCurrentStep('vehicle');
     } catch (error) {
-      console.error('Error fetching fare or coordinates:', error);
+      // console.error('Error fetching fare or coordinates:', error);
       setErrorModal("Error fetching fare or coordinates: " + error.message);
     } finally {
       setIsLoading(false);
@@ -360,12 +360,12 @@ const Home = () => {
                                   );
                                   setPickup(response.data.formatted_address);
                                 } catch (error) {
-                                  console.error('Error fetching coordinates:', error);
+                                  // console.error('Error fetching coordinates:', error);
                                   setErrorModal("Error fetching coordinates: " + error.message);
                                 }
                               },
                               (error) => {
-                                console.error('Error getting geolocation:', error.message);
+                                // console.error('Error getting geolocation:', error.message);
                                 setErrorModal("Error getting geolocation: " + error.message);
                               }
                             );

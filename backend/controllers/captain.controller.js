@@ -50,7 +50,7 @@ module.exports.registerCaptain = async (req, res, next) => {
 
       // Generate new OTPs
       const emailOTP = generateOTP();
-      console.log("Generated EMAIL OTP:", emailOTP);
+      // console.log("Generated EMAIL OTP:", emailOTP);
 
       captain.emailOTP = emailOTP;
       captain.password = await captainModel.hashPassword(password); // Update password if changed
@@ -70,7 +70,7 @@ module.exports.registerCaptain = async (req, res, next) => {
       // New captain signup
       const hashedPassword = await captainModel.hashPassword(password);
       const emailOTP = generateOTP();
-      console.log("Generated EMAIL OTP:", emailOTP);
+      // console.log("Generated EMAIL OTP:", emailOTP);
 
       captain = await captainService.createCaptain({
         firstname: fullname.firstname,
@@ -98,7 +98,7 @@ module.exports.registerCaptain = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      console.log("Duplicate key error:", error);
+      // console.log("Duplicate key error:", error);
       let field = Object.keys(error.keyValue)[0];
       return res.status(400).json({
         message: `Duplicate value found for ${field}. Please use a different ${field}.`,
@@ -125,7 +125,7 @@ module.exports.verifyEmailOTP = async (req, res, next) => {
   const storedOTP = captain.emailOTP.trim();
 
   // Debugging: Log the OTPs
-  console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
+  // console.log(`Stored OTP: ${storedOTP}, Entered OTP: ${normalizedOTP}`);
 
   if (String(storedOTP).trim() !== String(normalizedOTP).trim()) {
     return res.status(400).json({ message: "Invalid OTP" });
@@ -181,11 +181,11 @@ module.exports.loginCaptain = async (req, res, next) => {
 
 module.exports.getCaptainProfile = async (req, res, next) => {
   if (!req.captain) {
-    console.log('No captain found in request');
+    // console.log('No captain found in request');
     return res.status(404).json({ message: 'Captain not found' });
   }
 
-  console.log('Returning captain profile:', req.captain);
+  // console.log('Returning captain profile:', req.captain);
   res.status(200).json({ captain: req.captain });
 };
 
@@ -197,7 +197,7 @@ module.exports.logoutCaptain = async (req, res, next) => {
     await blackListTokenModel.create({ token });
   }
 
-  console.log("Captain logged out successfully");
+  // console.log("Captain logged out successfully");
   return res.status(200).json({ message: "Logged out" });
 };
 
@@ -257,7 +257,7 @@ module.exports.forgotPassword = async (req, res) => {
   const captain = await captainModel.findOne({ email }).select("+emailOTP");
 
   if (!captain) {
-    console.log("Captain not found for email:", email);
+    // console.log("Captain not found for email:", email);
     return res.status(404).json({ message: "Captain not found" });
   }
 
@@ -265,7 +265,7 @@ module.exports.forgotPassword = async (req, res) => {
   captain.emailOTP = otp;
   captain.lastOtpSent = new Date();
   await captain.save();
-  console.log("Generated OTP:", otp, "for email:", email);
+  // console.log("Generated OTP:", otp, "for email:", email);
 
   try {
     await sendEmailOTP(email, otp);
@@ -280,7 +280,7 @@ module.exports.forgotPassword = async (req, res) => {
 module.exports.verifyOtp = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log("Validation errors:", errors.array());
+    // console.log("Validation errors:", errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -289,21 +289,21 @@ module.exports.verifyOtp = async (req, res) => {
   try {
     const captain = await captainModel.findOne({ email }).select("+emailOTP +lastOtpSent");
     if (!captain) {
-      console.log("Captain not found for email:", email);
+      // console.log("Captain not found for email:", email);
       return res.status(404).json({ success: false, message: "Captain not found" });
     }
 
-    console.log("Stored OTP:", captain.emailOTP, "Entered OTP:", otp);
+    // console.log("Stored OTP:", captain.emailOTP, "Entered OTP:", otp);
 
     if (String(captain.emailOTP).trim() !== String(otp).trim()) {
-      console.log("OTP mismatch");
+      // console.log("OTP mismatch");
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
     const timeDiff = (new Date() - new Date(captain.lastOtpSent)) / 1000;
-    console.log("Time since OTP sent:", timeDiff, "seconds");
+    // console.log("Time since OTP sent:", timeDiff, "seconds");
     if (timeDiff > 600) {
-      console.log("OTP expired");
+      // console.log("OTP expired");
       return res.status(400).json({ success: false, message: "OTP has expired" });
     }
 
