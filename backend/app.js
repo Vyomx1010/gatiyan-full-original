@@ -20,7 +20,7 @@ connectToDb();
 
 // Add simple CORS middleware to allow all origins and methods
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   // For preflight OPTIONS requests, send a 200 OK response with a message.
