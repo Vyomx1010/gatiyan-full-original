@@ -29,11 +29,11 @@ connectToDb();
 app.use(cors({
   origin: process.env.FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
   credentials: true
 }));
 
-// ✅ Fix for CORS Preflight returning 204
+// Fix for CORS Preflight returning 204
 app.options('*', (req, res) => {
   res.sendStatus(200); // Ensure proper 200 response for OPTIONS requests
 });
@@ -43,8 +43,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://checkout.razorpay.com"], 
-      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel.app"], 
+      scriptSrc: ["'self'", "https://checkout.razorpay.com"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel.app"],
     }
   }
 }));
@@ -77,12 +77,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// 7. Basic Route
+// 7. Add cache-busting headers to force fresh response (helps with mobile Google WebView issues)
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+// 8. Basic Route
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-// 8. API Routes
+// 9. API Routes
 app.use('/users', userRoutes);
 app.use('/captains', captainRoutes);
 app.use('/maps', mapsRoutes);
@@ -91,7 +99,7 @@ app.use('/payments', paymentRoutes);
 app.use('/admin-hubhaimere-sepanga-matlena', adminRoutes);
 app.use('/contact', contactRoutes);
 
-// 9. Error Handling Middleware
+// 10. Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
