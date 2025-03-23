@@ -33,9 +33,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Fix for CORS Preflight returning 204
+// Custom OPTIONS handler: Instead of default sendStatus(200) (which sends 204), we send a JSON response.
 app.options('*', (req, res) => {
-  res.sendStatus(200).json({ message: 'ok' }); // Ensure proper 200 response for OPTIONS requests
+  res.status(200).json({ message: 'OK' });
 });
 
 // 2. Helmet for secure HTTP headers
@@ -43,8 +43,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://checkout.razorpay.com"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel.app"],
+      scriptSrc: ["'self'", "https://checkout.razorpay.com"], 
+      connectSrc: ["'self'", process.env.FRONTEND_URL, "wss://gatiyan-full-original.vercel.app"], 
     }
   }
 }));
@@ -72,12 +72,12 @@ app.use((req, res, next) => {
   res.cookie('token', req.cookies.token || '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // Secure in production
-    sameSite: 'Strict' // Prevent CSRF
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
   });
   next();
 });
 
-// 7. Add cache-busting headers to force fresh response (helps with mobile Google WebView issues)
+// 7. Add cache-busting headers to force fresh response
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
