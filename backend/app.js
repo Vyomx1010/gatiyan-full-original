@@ -33,10 +33,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Custom OPTIONS handler: Instead of default sendStatus(200) (which sends 204), we send a JSON response.
-app.options('*', (req, res) => {
-  res.status(200).json({ message: 'OK' });
-});
 
 // 2. Helmet for secure HTTP headers
 app.use(helmet({
