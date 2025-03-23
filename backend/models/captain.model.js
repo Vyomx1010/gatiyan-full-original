@@ -54,8 +54,8 @@ const captainSchema = new mongoose.Schema({
     vehicleType: {
       type: String,
       required: true,
-      enum: ['4-seater hatchback', '4-seater sedan', '7-seater SUV', '7-seater MUV'],
-    },
+      enum: ['Swift', 'Wagon R', 'Hyundai i20', 'Tiago', 'Swift Dzire', 'XLG', 'Ertiga', 'Toyota Innova'],
+    },    
   },
   profilePhoto: {
     type: String,

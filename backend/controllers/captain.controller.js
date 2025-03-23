@@ -203,54 +203,47 @@ module.exports.logoutCaptain = async (req, res, next) => {
 
 // New resend OTP endpoint for captains
 module.exports.resendOTP = async (req, res) => {
-  const { email, mobileNumber } = req.body;
+  const { email } = req.body;  // ✅ Removed mobileNumber
 
-  if (!email || !mobileNumber) {
-    return res.status(400).json({ message: "Email and mobile number are required" });
-  }
-
-  let formattedMobileNumber = mobileNumber.trim();
-  if (!formattedMobileNumber.startsWith("+91")) {
-    formattedMobileNumber = `+91${formattedMobileNumber}`;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
   }
 
   try {
-    const captain = await captainModel.findOne({
-      $or: [{ email }, { mobileNumber: formattedMobileNumber }],
-    });
+    const captain = await captainModel.findOne({ email });
 
     if (!captain) {
       return res.status(404).json({ message: "Captain not found" });
     }
 
-    if (captain.emailVerified && captain.mobileVerified) {
-      return res.status(400).json({ message: "Account is already fully verified" });
+    if (captain.emailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
     }
 
     // Check cooldown (2 minutes = 120 seconds)
     const lastSent = captain.lastOtpSent || new Date(0);
     const timeDiff = (new Date() - new Date(lastSent)) / 1000;
+
     if (timeDiff < 120) {
       return res.status(429).json({
         message: `Please wait ${Math.ceil(120 - timeDiff)} seconds before requesting a new OTP`,
       });
     }
 
-    // Generate and send new OTPs
-    if (!captain.emailVerified) {
-      captain.emailOTP = generateOTP();
-      await sendEmailOTP(captain.email, captain.emailOTP);
-    }
+    // ✅ Generate and send new email OTP
+    captain.emailOTP = generateOTP();
+    await sendEmailOTP(captain.email, captain.emailOTP);
 
     captain.lastOtpSent = new Date();
     await captain.save();
 
-    res.status(200).json({ message: "OTP resent to email and/or mobile number" });
+    res.status(200).json({ message: "OTP resent to email successfully" });
   } catch (error) {
     console.error("Error resending OTP:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 module.exports.forgotPassword = async (req, res) => {
   const { email } = req.body;

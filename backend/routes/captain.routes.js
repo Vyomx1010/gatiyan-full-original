@@ -25,9 +25,10 @@ router.post(
     body("vehicle.capacity")
       .isInt({ min: 1 })
       .withMessage("Capacity must be at least 1"),
-    body("vehicle.vehicleType")
-      .isIn(["4-seater hatchback", "4-seater sedan", "7-seater SUV", "7-seater MUV"])
-      .withMessage("Invalid vehicle type"),
+      body("vehicle.vehicleType")
+      .isString()
+      .isIn(["Swift", "Wagon R", "Hyundai i20", "Tiago", "Swift Dzire", "XLG", "Ertiga", "Toyota Innova"])
+      .withMessage("Invalid vehicle type"),    
     body("mobileNumber")
       .isLength({ min: 10 })
       .withMessage("Mobile number must be at least 10 characters long"),
@@ -72,7 +73,6 @@ router.post(
   "/resend-otp",
   [
     body("email").isEmail().withMessage("Invalid Email"),
-    body("mobileNumber").isLength({ min: 10 }).withMessage("Invalid Mobile Number"),
   ],
   captainController.resendOTP
 );

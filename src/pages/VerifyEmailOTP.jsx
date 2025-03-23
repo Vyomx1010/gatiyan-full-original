@@ -5,12 +5,13 @@ import axios from 'axios';
 const VerifyEmailOTP = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { email, mobileNumber, userType } = location.state || {};
+  const { email, userType } = location.state || {};
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);  // <-- Loader state added
-  const [cooldown, setCooldown] = useState(0); 
+  const [resendSuccess, setResendSuccess] = useState('');  // ✅ Separate state for resend success message
+  const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
   const inputRefs = useRef([]);
 
@@ -19,6 +20,7 @@ const VerifyEmailOTP = () => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
     if (value && index < 5) {
       const nextInput = inputRefs.current[index + 1];
       if (nextInput) {
@@ -46,25 +48,27 @@ const VerifyEmailOTP = () => {
       return;
     }
 
-    setLoading(true);  // <-- Start loader
+    setLoading(true);
 
     const completeOtp = otp.join('');
     console.log('Submitting Email OTP:', completeOtp);
+
     try {
-      const endpoint = userType === 'captain' 
+      const endpoint = userType === 'captain'
         ? `${import.meta.env.VITE_BACKEND_URL}/captains/verify-email-otp`
         : `${import.meta.env.VITE_BACKEND_URL}/users/verify-email-otp`;
-      
+
       const response = await axios.post(endpoint, { email, otp: completeOtp });
       console.log('Server Response:', response.data);
       setSuccess(response.data.message);
       setError('');
+      setResendSuccess('');  // ✅ Clear resend message on successful verification
     } catch (err) {
       console.error('Error verifying OTP:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to verify OTP. Please try again.');
       setSuccess('');
     } finally {
-      setLoading(false);  // <-- Stop loader
+      setLoading(false);
     }
   };
 
@@ -73,15 +77,16 @@ const VerifyEmailOTP = () => {
       const endpoint = userType === 'captain'
         ? `${import.meta.env.VITE_BACKEND_URL}/captains/resend-otp`
         : `${import.meta.env.VITE_BACKEND_URL}/users/resend-otp`;
+
       const response = await axios.post(endpoint, { email });
-      setSuccess(response.data.message);
+      setResendSuccess('OTP resent successfully ✅');  // ✅ Show correct resend message
       setError('');
       setCooldown(120);
     } catch (err) {
       console.error('Error resending OTP:', err.response?.data || err.message);
       const errorMsg = err.response?.data?.message || 'Failed to resend OTP. Please try again.';
       setError(errorMsg);
-      setSuccess('');
+      setResendSuccess('');
       if (err.response?.status === 429) {
         const match = errorMsg.match(/wait (\d+) seconds/);
         if (match) {
@@ -100,6 +105,7 @@ const VerifyEmailOTP = () => {
 
   const handlePopupOk = () => {
     setSuccess('');
+    setResendSuccess('');
     navigate(userType === 'captain' ? '/captain-login' : '/login');
   };
 
@@ -112,6 +118,7 @@ const VerifyEmailOTP = () => {
             We've sent a 6-digit code to {email || 'your email address'}
           </p>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="flex justify-center space-x-2">
             {otp.map((digit, index) => (
@@ -132,6 +139,8 @@ const VerifyEmailOTP = () => {
           </div>
 
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          {resendSuccess && <p className="text-sm text-green-600 text-center">{resendSuccess}</p>}  
+          {/* ✅ Resend OTP Success message */}
 
           <div className="mt-4 bg-gray-50 p-4 rounded-md">
             <div className="text-sm text-gray-700">
@@ -169,11 +178,12 @@ const VerifyEmailOTP = () => {
           </div>
         </form>
 
+        {/* ✅ Separate popup for OTP verification success */}
         {success && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg">
               <h2 className="text-xl font-bold mb-4">Success!</h2>
-              <p className="mb-4">Your email has been successfully verified. You will receive a call for mobile verification within an hour.</p>
+              <p className="mb-4">{success}</p>
               <button
                 onClick={handlePopupOk}
                 className="px-4 py-2 bg-green-500 text-white rounded"

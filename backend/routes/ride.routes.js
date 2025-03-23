@@ -6,19 +6,29 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 
 router.post(
-    "/create",
-    authMiddleware.authUser,
-    body("pickup").isString().isLength({ min: 3 }).withMessage("Invalid pickup address"),
-    body("destination").isString().isLength({ min: 3 }).withMessage("Invalid destination address"),
-    body("vehicleType")
-      .isString()
-      .isIn(["4-seater hatchback", "4-seater sedan", "7-seater SUV", "7-seater MUV"])
-      .withMessage("Invalid vehicle type"),
-    body("rideDate").isString().notEmpty().withMessage("Ride date is required"),
-    body("rideTime").isString().notEmpty().withMessage("Ride time is required"),
-    body("paymentType").isString().isIn(["cash", "online"]).withMessage("Invalid payment type"),
-    rideController.createRide
-  );
+  "/create",
+  authMiddleware.authUser,
+  body("pickup").isString().isLength({ min: 3 }).withMessage("Invalid pickup address"),
+  body("destination").isString().isLength({ min: 3 }).withMessage("Invalid destination address"),
+  body("vehicleType")
+    .isString()
+    .isIn([
+      "Swift", 
+      "Wagon R", 
+      "Hyundai i20", 
+      "Tiago", 
+      "Swift Dzire", 
+      "XLG", 
+      "Ertiga", 
+      "Toyota Innova"
+    ])
+    .withMessage("Invalid vehicle type"),
+  body("rideDate").isString().notEmpty().withMessage("Ride date is required"),
+  body("rideTime").isString().notEmpty().withMessage("Ride time is required"),
+  body("paymentType").isString().isIn(["cash", "online"]).withMessage("Invalid payment type"),
+  rideController.createRide
+);
+
 
   router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
 

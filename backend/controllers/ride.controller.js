@@ -48,7 +48,6 @@ module.exports.createRide = async (req, res) => {
 
     // Retrieve user details for email content
     const user = await userModel.findById(req.user._id);
-
     // Prepare the email content for the ride request confirmation
     const emailContent = `
       <!DOCTYPE html>
@@ -64,7 +63,7 @@ module.exports.createRide = async (req, res) => {
               .email-content { padding: 20px; }
               .info-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding: 10px 0; }
               .info-label { color: #4b5563; font-weight: 600; }
-              .info-value { color: #111827; text-align: right; }
+              .info-value { color: #111827; text-align: right; margin-left: 10px; }
               .fare-row { display: flex; justify-content: space-between; padding: 15px 0; }
               .fare-value { color: #10b981; font-size: 20px; }
               .email-footer { background-color: #f9fafb; text-align: center; padding: 10px; color: #6b7280; font-size: 12px; }
@@ -101,10 +100,6 @@ module.exports.createRide = async (req, res) => {
                   <div class="info-row">
                       <span class="info-label">Time:</span>
                       <span class="info-value">${rideTime}</span>
-                  </div>
-                  <div class="info-row">
-                      <span class="info-label">OTP:</span>
-                      <span class="info-value">${ride.otp}</span>
                   </div>
                   <div class="info-row">
                       <span class="info-label">Vehicle Type</span>

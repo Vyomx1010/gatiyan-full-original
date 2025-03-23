@@ -194,9 +194,12 @@ module.exports.getUserProfile = async (req, res, next) => {
 };
 
 module.exports.logoutUser = async (req, res, next) => {
+  // Clear the cookie
   res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "None" });
 
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  // Safely access token with fallback to prevent "undefined" error
+  const token = (req.cookies?.token) || (req.headers.authorization?.split(" ")[1]);
+  
   if (token) {
     await blackListTokenModel.create({ token });
   }
@@ -205,29 +208,26 @@ module.exports.logoutUser = async (req, res, next) => {
   return res.status(200).json({ message: "Logged out" });
 };
 
+
 // Resend OTP endpoint
 module.exports.resendOTP = async (req, res) => {
-  const { email, mobileNumber } = req.body;
+  const { email} = req.body;
 
-  if (!email || !mobileNumber) {
-    return res.status(400).json({ message: "Email and mobile number are required" });
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
   }
 
-  let formattedMobileNumber = mobileNumber.trim();
-  if (!formattedMobileNumber.startsWith("+91")) {
-    formattedMobileNumber = `+91${formattedMobileNumber}`;
-  }
 
   try {
     const user = await userModel.findOne({
-      $or: [{ email }, { mobileNumber: formattedMobileNumber }],
+      $or: [{ email }],
     });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.emailVerified && user.mobileVerified) {
+    if (user.emailVerified) {
       return res.status(400).json({ message: "Account is already fully verified" });
     }
 
