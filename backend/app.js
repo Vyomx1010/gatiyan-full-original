@@ -18,7 +18,19 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 // Connect to MongoDB
 connectToDb();
 
-// Body Parser (no payload limits, no sanitization)
+// Add simple CORS middleware to allow all origins and methods
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // For preflight OPTIONS requests, send a 200 OK response with a message.
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({ message: 'OK' });
+  }
+  next();
+});
+
+// Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
