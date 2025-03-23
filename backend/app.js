@@ -18,28 +18,33 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 // Connect to MongoDB
 connectToDb();
 
-// Add simple CORS middleware to allow all origins and methods
+// ✅ Add CORS middleware (allow all origins)
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  // For preflight OPTIONS requests, send a 200 OK response with a message.
+
+  // ✅ Add no-cache headers to prevent 304
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   if (req.method === 'OPTIONS') {
     return res.status(200).json({ message: 'OK' });
   }
   next();
 });
 
-// Body Parser
+// ✅ Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Basic Route
+// ✅ Basic Route
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-// API Routes
+// ✅ API Routes
 app.use('/users', userRoutes);
 app.use('/captains', captainRoutes);
 app.use('/maps', mapsRoutes);
@@ -48,7 +53,7 @@ app.use('/payments', paymentRoutes);
 app.use('/admin-hubhaimere-sepanga-matlena', adminRoutes);
 app.use('/contact', contactRoutes);
 
-// Error Handling Middleware
+// ✅ Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
