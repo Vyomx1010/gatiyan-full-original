@@ -536,7 +536,7 @@ const ConfirmRide = (props) => {
               </div>
             ) : (
               <span className="flex items-center justify-center">
-                <span className="mr-2">🚗</span>
+                <span className="mr-2"></span>
                 Confirm & Book Now
               </span>
             )}

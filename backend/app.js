@@ -35,7 +35,7 @@ app.use(cors({
 
 // Fix for CORS Preflight returning 204
 app.options('*', (req, res) => {
-  res.sendStatus(200); // Ensure proper 200 response for OPTIONS requests
+  res.sendStatus(200).json({ message: 'ok' }); // Ensure proper 200 response for OPTIONS requests
 });
 
 // 2. Helmet for secure HTTP headers
