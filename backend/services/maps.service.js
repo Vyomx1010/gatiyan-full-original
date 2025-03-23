@@ -64,11 +64,11 @@ module.exports.getAddressCoordinate = async (input) => {
     url = `https://api.olamaps.io/places/v1/geocode?address=${encodeURIComponent(trimmedInput)}&api_key=${apiKey}`;
   }
 
-  console.log('[maps.service] Request URL:', url);
+  // console.log('[maps.service] Request URL:', url);
 
   try {
     const response = await axiosInstance.get(url);
-    console.log('[maps.service] API response:', response.data);
+    // console.log('[maps.service] API response:', response.data);
     // Ola Maps returns status "ok" and a geocodingResults array.
     if (response.data.status === 'ok' && response.data.geocodingResults && response.data.geocodingResults.length > 0) {
       const result = response.data.geocodingResults[0];
@@ -108,7 +108,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
 
   try {
     const response = await axiosInstance.get(url);
-    console.log('[maps.service] DistanceMatrix API response:', response.data);
+    // console.log('[maps.service] DistanceMatrix API response:', response.data);
     if (response.data && response.data.rows && response.data.rows.length > 0 &&
         response.data.rows[0].elements && response.data.rows[0].elements.length > 0) {
       if (response.data.rows[0].elements[0].status === 'ZERO_RESULTS') {
@@ -138,7 +138,7 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     if (response.data && Array.isArray(response.data.predictions)) {
       return response.data.predictions.map(prediction => prediction.description);
     } else {
-      console.error('[maps.service] Response data:', response.data);
+      // console.error('[maps.service] Response data:', response.data);
       throw new Error('Unable to fetch suggestions');
     }
   } catch (err) {

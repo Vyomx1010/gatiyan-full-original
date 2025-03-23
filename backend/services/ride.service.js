@@ -17,34 +17,50 @@ async function getFare(pickup, destination) {
     // console.log("Distance & Time Data:", distanceTime); // Debugging
 
     const baseFare = { 
-      '4-seater hatchback': 30, 
-      '4-seater sedan': 35, 
-      '7-seater SUV': 50, 
-      '7-seater MUV': 55 
+      'Swift': 30, 
+      'Wagon R': 25, 
+      'Hyundai i20': 35, 
+      'Tiago': 35, 
+      'Swift Dzire': 35, 
+      'XLG': 45, 
+      'Ertiga': 42, 
+      'Toyota Innova': 55 
     };
+    
     const perKmRate = { 
-      '4-seater hatchback': 12, 
-      '4-seater sedan': 14, 
-      '7-seater SUV': 16, 
-      '7-seater MUV': 18 
+      'Swift': 26, 
+      'Wagon R': 24, 
+      'Hyundai i20': 27, 
+      'Tiago': 27, 
+      'Swift Dzire': 27, 
+      'XLG': 31.60, 
+      'Ertiga': 31, 
+      'Toyota Innova': 40
     };
+    
     const perMinuteRate = { 
-      '4-seater hatchback': 2, 
-      '4-seater sedan': 2.5, 
-      '7-seater SUV': 3, 
-      '7-seater MUV': 3.5 
+      'Swift': 0.80, 
+      'Wagon R': 0.80, 
+      'Hyundai i20': 0.80, 
+      'Tiago': 0.80, 
+      'Swift Dzire': 1.00, 
+      'XLG': 1.20, 
+      'Ertiga': 1.20, 
+      'Toyota Innova': 1.20 
     };
-
+    
     const fare = {};
-    for (const type in baseFare) {
-      fare[type] = Math.round(
-        baseFare[type] +
-        ((distanceTime.distance / 1000) * perKmRate[type]) +
-        ((distanceTime.duration / 60) * perMinuteRate[type])
+    for (const vehicle in baseFare) {
+      fare[vehicle] = Math.round(
+        baseFare[vehicle] +
+        ((distanceTime.distance / 1000) * perKmRate[vehicle]) +
+        ((distanceTime.duration / 60) * perMinuteRate[vehicle])
       );
     }
-    // console.log("Calculated Fare:", fare); // Debugging
+    
+    console.log("Calculated Fare:", fare); // Debugging
     return fare;
+    
   } catch (error) {
     console.error('Error in fare calculation:', error.message);
     throw new Error('Fare calculation failed');

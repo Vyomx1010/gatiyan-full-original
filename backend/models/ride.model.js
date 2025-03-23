@@ -58,6 +58,7 @@ const rideSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  vehicleType: { type: String},
   otp: {
     type: String,
     select: false,

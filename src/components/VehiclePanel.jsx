@@ -1,49 +1,29 @@
 import React from 'react';
 import 'remixicon/fonts/remixicon.css';
-import sedan from "../assets/sedan.png";
-import suv from "../assets/SUVcar.png";
-import hatchback from "../assets/hackback.png";
 
 const VehiclePanel = (props) => {
-  // Vehicle types with their labels and updated static image URLs
+  // Vehicle types with company names only
   const vehicleTypes = [
-    {
-      type: '4-seater hatchback',
-      label: 'Hatchback',
-      image: hatchback,
-      description: 'Affordable, compact rides',
-      seatCount: 4
-    },
-    {
-      type: '4-seater sedan',
-      label: 'Sedan',
-      image: sedan,
-      description: 'Comfortable and stylish',
-      seatCount: 4
-    },
-    {
-      type: '7-seater SUV',
-      label: 'SUV',
-      image: suv,
-      description: 'Spacious family ride',
-      seatCount: 7
-    },
+    { type: 'Swift', label: 'Swift', description: 'Compact and affordable rides', seatCount: 4 },
+    { type: 'Wagon R', label: 'Wagon R', description: 'Economical and comfortable', seatCount: 4 },
+    { type: 'Hyundai i20', label: 'Hyundai i20', description: 'Stylish and smooth rides', seatCount: 4 },
+    { type: 'Tiago', label: 'Tiago', description: 'Reliable and efficient', seatCount: 4 },
+    { type: 'Swift Dzire', label: 'Swift Dzire', description: 'Spacious and stylish', seatCount: 4 },
+    { type: 'XLG', label: 'XLG', description: 'Spacious family ride', seatCount: 7 },
+    { type: 'Ertiga', label: 'Ertiga', description: 'Spacious and comfortable', seatCount: 7 },
+    { type: 'Toyota Innova', label: 'Toyota Innova', description: 'Luxury and spaciousness', seatCount: 7 }
   ];
 
   return (
     <div className="bg-white rounded-t-2xl shadow-lg p-4 pt-8 relative">
-      
-
       <h3 className="text-2xl font-semibold mb-5 text-center">Choose a Vehicle</h3>
 
       {/* Vehicle options */}
       <div className="space-y-3">
         {vehicleTypes.map((vehicle, index) => {
-          const backendFare = props.fare[vehicle.type] ?? 0;
+          const backendFare = props.fare[vehicle.type] ?? 0;   // Ensure proper fare handling
           const discountPercentage = 20;
-          const inflatedPrice = Math.round(
-            backendFare * (100 + discountPercentage) / 100
-          );
+          const inflatedPrice = Math.round(backendFare * (100 + discountPercentage) / 100);
 
           return (
             <div
@@ -54,17 +34,8 @@ const VehiclePanel = (props) => {
               }}
               className="flex border-2 rounded-xl p-3 items-center justify-between cursor-pointer transition-all hover:bg-gray-50 active:border-black"
             >
-              {/* Vehicle Image */}
-              <div className="flex-shrink-0">
-                <img
-                  className="h-16 w-24 object-contain rounded"
-                  src={vehicle.image}
-                  alt={vehicle.label}
-                />
-              </div>
-
               {/* Vehicle Info */}
-              <div className="flex-grow ml-3 max-w-[50%]">
+              <div className="flex-grow ml-3">
                 <div className="flex items-center gap-2">
                   <h4 className="font-medium text-base">{vehicle.label}</h4>
                   <div className="flex items-center text-sm text-gray-600">
@@ -83,7 +54,7 @@ const VehiclePanel = (props) => {
                     ₹{inflatedPrice}
                   </span>
                   <span className="text-lg font-semibold text-gray-800">
-                    ₹{backendFare}
+                    ₹{backendFare > 0 ? backendFare : '0'}
                   </span>
                 </div>
                 {backendFare > 0 && (

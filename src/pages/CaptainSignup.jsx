@@ -36,17 +36,23 @@ const CaptainSignup = () => {
 
   const updateFormData = (e, section = '') => {
     const { name, value } = e.target;
-    if (section === 'vehicle' && name === 'type') {
-      const capacity = value === '4-seater hatchback' ? '4'
-        : value === '4-seater sedan' ? '4'
-        : value === '7-seater SUV' ? '7'
-        : '';
+  
+    if (section === 'vehicle' && name === 'type') {   // ✅ Kept the same field name
+      const capacity = 
+        ['Swift', 'Wagon R', 'Hyundai i20', 'Tiago', 'Swift Dzire'].includes(value)
+          ? '4' 
+          : ['XLG', 'Ertiga'].includes(value)
+          ? '7' 
+          : value === 'Toyota Innova'
+          ? '7' 
+          : '';
+  
       setFormData((prev) => ({
         ...prev,
         vehicle: {
           ...prev.vehicle,
-          type: value,
-          capacity: capacity,
+          type: value,        // ✅ Kept the same key as you provided
+          capacity: capacity, 
         },
       }));
     } else if (section) {
@@ -60,12 +66,13 @@ const CaptainSignup = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-
+  
     if (name === 'password') {
       const strength = calculatePasswordStrength(value);
       setPasswordStrength(strength);
     }
   };
+  
 
   const calculatePasswordStrength = (password) => {
     let strength = 0;
@@ -123,7 +130,7 @@ const CaptainSignup = () => {
       if (response.status === 201) {
         toast.success('OTP sent to your email and mobile number!');
         navigate('/verify-email-otp', {
-          state: { email: formData.email, mobileNumber: formData.mobileNumber, userType: 'captain' },
+          state: { email: formData.email, userType: 'captain' },
         });
       }
     } catch (error) {
@@ -336,9 +343,14 @@ const CaptainSignup = () => {
                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-black transition duration-300"
                 >
                   <option value="">Select Vehicle Type</option>
-                  <option value="4-seater hatchback">Hatchback</option>
-                  <option value="4-seater sedan">Sedan</option>
-                  <option value="7-seater SUV">SUV</option>
+                  <option value="Swift">Swift</option>
+                  <option value="Wagon R">Wagon R</option>
+                  <option value="Hyundai i20">Hyundai i20</option>
+                  <option value="Tiago">Tiago</option>
+                  <option value="Swift Dzire">Swift Dzire</option>
+                  <option value="XLG">XL6</option>
+                  <option value="Ertiga">Ertiga</option>
+                  <option value="Toyota Innova">Toyota Innova</option>
                 </select>
               </div>
               <div>
@@ -374,11 +386,10 @@ const CaptainSignup = () => {
               <button
                 type="submit"
                 disabled={!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted}
-                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${
-                  !formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted
+                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-gray-800'
-                }`}
+                  }`}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>

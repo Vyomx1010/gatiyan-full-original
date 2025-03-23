@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaLocationArrow } from 'react-icons/fa';
 import axios from 'axios';
 import LocationSearchPanel from '../components/LocationSearchPanel';
+import GatiyanSections from '../components/GatiyanSections';
 
 function Start() {
   const navigate = useNavigate();
@@ -337,6 +338,9 @@ function Start() {
           </div>
         </div>
       </section>
+            {/* Images and banner description */}
+            <GatiyanSections/>
+
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-100">
