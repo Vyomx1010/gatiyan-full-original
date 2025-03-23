@@ -1,24 +1,12 @@
 const http = require('http');
 const app = require('./app');
-const { report } = require('@vercel/speed-insights');
+const { injectSpeedInsightsMiddleware } = require('@vercel/speed-insights/middleware'); // Use the middleware
 const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-  const start = Date.now();
-  
-  // Pass the request to the Express app
-  app(req, res, () => {});
+const server = http.createServer(app);
 
-  // Once the response has finished, measure the duration and report it
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    report({
-      name: `${req.method} ${req.url}`,
-      duration,
-    });
-    console.log(`[⏱️] ${req.method} ${req.url} - ${duration}ms`);
-  });
-});
+// Inject the middleware for automatic tracking
+injectSpeedInsightsMiddleware(app);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
