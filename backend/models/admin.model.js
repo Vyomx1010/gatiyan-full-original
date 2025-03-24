@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const adminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
+  twoFactorCode: { type: String, default: null },
+  twoFactorExpires: { type: Date, default: null },
 });
 
 adminSchema.methods.generateAuthToken = function () {
@@ -13,6 +15,10 @@ adminSchema.methods.generateAuthToken = function () {
 
 adminSchema.statics.hashPassword = async function (password) {
   return await bcrypt.hash(password, 10);
+};
+
+adminSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('Admin', adminSchema);
