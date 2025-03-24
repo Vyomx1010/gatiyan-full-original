@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../../components/admin/Navbar";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Captains = () => {
   const [captains, setCaptains] = useState([]);
   const [earnings, setEarnings] = useState({});
   const [earningsLoading, setEarningsLoading] = useState(true);
-  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCaptains();
@@ -20,9 +23,11 @@ const Captains = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCaptains(res.data.captains);
-      fetchAllEarnings(res.data.captains);
+      await fetchAllEarnings(res.data.captains);
+      setLoading(false);
     } catch (err) {
-      showToast("Error fetching captains", "error");
+      toast.error("Error fetching captains");
+      setLoading(false);
     }
   };
 
@@ -64,19 +69,25 @@ const Captains = () => {
             : captain
         )
       );
-      showToast(
-        `Captain ${status === "blocked" ? "unblocked" : "blocked"} successfully`,
-        "success"
+      toast.success(
+        `Captain ${status === "blocked" ? "unblocked" : "blocked"} successfully`
       );
     } catch (err) {
-      showToast("Error updating captain status", "error");
+      toast.error("Error updating captain status");
     }
   };
 
-  const showToast = (message, type) => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
-  };
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex justify-center items-center h-screen">
+          <ScaleLoader color="#4F46E5" height={35} width={5} />
+        </div>
+        <ToastContainer position="bottom-right" autoClose={3000} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -157,20 +168,7 @@ const Captains = () => {
             ))}
           </div>
         </div>
-
-        {toast.show && (
-          <div className="fixed bottom-4 right-4 animate-fade-in">
-            <div
-              className={`px-6 py-3 rounded-lg shadow-lg ${
-                toast.type === "success"
-                  ? "bg-green-500 text-white"
-                  : "bg-red-500 text-white"
-              }`}
-            >
-              {toast.message}
-            </div>
-          </div>
-        )}
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
     </>
   );

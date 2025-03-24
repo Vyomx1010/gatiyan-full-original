@@ -48,6 +48,7 @@ const createEmailTemplate = (heading, messageBody) => {
 // Admin Authentication
 // ------------------------
 router.post('/login', adminController.adminLogin);
+router.post('/verify-2sv', adminController.verify2SV);
 
 // ------------------------
 // Secure Routes (Admin Only)
@@ -83,6 +84,9 @@ router.get('/rides/pending', authMiddleware.authAdmin, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+
+
 
 // Update ride status (update only status fields)
 // Inside the updateRideStatus route

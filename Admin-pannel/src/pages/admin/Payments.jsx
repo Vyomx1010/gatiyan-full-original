@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../../components/admin/Navbar";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true); // Loader state added
 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+        setLoading(true); // Start loader
         const token = localStorage.getItem("adminToken");
         const res = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/admin-hubhaimere-sepanga-matlena/payments`,
@@ -20,11 +25,26 @@ const Payments = () => {
       } catch (err) {
         console.error("Error fetching payments:", err);
         setError(err.response?.data?.message || err.message);
+        toast.error("Error fetching payments: " + (err.response?.data?.message || err.message)); // Proper popup
         setPayments([]); // Fallback to empty array
+      } finally {
+        setLoading(false); // Stop loader
       }
     };
     fetchPayments();
   }, []);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex justify-center items-center h-screen">
+          <ScaleLoader color="#4F46E5" height={35} width={5} />
+        </div>
+        <ToastContainer position="bottom-right" autoClose={3000} />
+      </>
+    );
+  }
 
   if (error) {
     return (
@@ -35,6 +55,7 @@ const Payments = () => {
           <div className="bg-red-100 text-red-800 p-4 rounded shadow">
             Error: {error}
           </div>
+          <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
       </>
     );
@@ -120,6 +141,7 @@ const Payments = () => {
           </div>
         )}
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard.jsx';
 import Users from './pages/admin/Users';
@@ -8,10 +8,14 @@ import Payments from './pages/admin/Payments';
 import AdminProtectWrapper from './pages/admin/AdminProtectWrapper';
 import NotFoundPage from './pages/NotFoundPage';
 import 'remixicon/fonts/remixicon.css';
+
 const App = () => {
   return (
     <div>
       <Routes>
+        {/* Redirect from "/" to "/admin/login" */}
+        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+
         {/* Public Routes */}
         <Route path="/admin/login" element={<AdminLogin />} /> 
         
