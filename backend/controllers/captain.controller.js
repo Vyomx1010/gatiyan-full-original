@@ -1,8 +1,6 @@
 const captainModel = require("../models/captain.model");
 const captainService = require("../services/captain.service");
 const { validationResult } = require("express-validator");
-const path = require("path");
-const blackListTokenModel = require(path.resolve(__dirname, "../models/blackListToken.model.js"));
 const { generateOTP } = require("../utils/otp.utils");
 const { sendEmailOTP } = require("../services/communication.service");
 const rideModel = require("../models/ride.model");
@@ -13,9 +11,15 @@ module.exports.registerCaptain = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { fullname, email, password, vehicle, mobileNumber, drivingLicense } = req.body;
-  const profilePhoto = req.file ? req.file.path : "";
+  // Read profilePhoto from req.body (this should be the Cloudinary URL sent from frontend)
+  const { fullname, email, password, vehicle, mobileNumber, drivingLicense, profilePhoto } = req.body;
+  
+  // Check that profilePhoto is provided
+  if (!profilePhoto) {
+    return res.status(400).json({ message: "Profile photo is required" });
+  }
 
+  // Format mobile number to ensure it starts with +91
   let formattedMobileNumber = mobileNumber.trim();
   if (!formattedMobileNumber.startsWith("+91")) {
     formattedMobileNumber = `+91${formattedMobileNumber}`;
@@ -29,7 +33,7 @@ module.exports.registerCaptain = async (req, res, next) => {
     let captain;
 
     if (existingCaptainByEmail || existingCaptainByMobile) {
-      // If both email and mobile are fully verified, reject duplicate signup
+      // If the account is already fully verified, reject duplicate signup
       if (existingCaptainByEmail?.emailVerified && existingCaptainByEmail?.mobileVerified) {
         return res.status(400).json({ message: "Account with this email is already fully verified." });
       }
@@ -48,10 +52,8 @@ module.exports.registerCaptain = async (req, res, next) => {
         captain.mobileNumber = formattedMobileNumber;
       }
 
-      // Generate new OTPs
+      // Generate new OTP
       const emailOTP = generateOTP();
-      // console.log("Generated EMAIL OTP:", emailOTP);
-
       captain.emailOTP = emailOTP;
       captain.password = await captainModel.hashPassword(password); // Update password if changed
       captain.fullname = { firstname: fullname.firstname, lastname: fullname.lastname };
@@ -61,6 +63,7 @@ module.exports.registerCaptain = async (req, res, next) => {
         capacity: vehicle.capacity,
         vehicleType: vehicle.vehicleType,
       };
+      // Use the Cloudinary URL sent from frontend
       captain.profilePhoto = profilePhoto;
       captain.drivingLicense = drivingLicense;
       captain.lastOtpSent = new Date(); // Track OTP send time
@@ -70,7 +73,6 @@ module.exports.registerCaptain = async (req, res, next) => {
       // New captain signup
       const hashedPassword = await captainModel.hashPassword(password);
       const emailOTP = generateOTP();
-      // console.log("Generated EMAIL OTP:", emailOTP);
 
       captain = await captainService.createCaptain({
         firstname: fullname.firstname,
@@ -81,7 +83,7 @@ module.exports.registerCaptain = async (req, res, next) => {
         plate: vehicle.plate,
         capacity: vehicle.capacity,
         vehicleType: vehicle.vehicleType,
-        profilePhoto,
+        profilePhoto, // Cloudinary URL from frontend
         mobileNumber: formattedMobileNumber,
         drivingLicense,
         emailOTP,
@@ -89,7 +91,7 @@ module.exports.registerCaptain = async (req, res, next) => {
       });
     }
 
-    // Send OTPs
+    // Send OTP to the captain's email for verification
     await sendEmailOTP(captain.email, captain.emailOTP);
 
     res.status(201).json({
@@ -98,7 +100,6 @@ module.exports.registerCaptain = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      // console.log("Duplicate key error:", error);
       let field = Object.keys(error.keyValue)[0];
       return res.status(400).json({
         message: `Duplicate value found for ${field}. Please use a different ${field}.`,
@@ -108,6 +109,7 @@ module.exports.registerCaptain = async (req, res, next) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 module.exports.verifyEmailOTP = async (req, res, next) => {
   const { email, otp } = req.body;

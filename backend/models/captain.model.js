@@ -21,6 +21,24 @@ const captainSchema = new mongoose.Schema({
   gender:{
     type: String,
   },
+  totalearning:{
+    type: String,
+  },
+  todayearning:{
+    type: String,
+  },
+  Monthlyearning:{
+    type: String,
+  },
+  totalrides:{
+    type: String,
+  },
+  totalridescompleted:{
+    type: String,
+  },
+  totalridescancelled:{
+    type: String,
+  },
   email: {
     type: String,
     required: true,
