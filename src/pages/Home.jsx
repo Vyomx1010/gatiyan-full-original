@@ -9,7 +9,7 @@ import { UserDataContext } from '../context/UserContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaLocationArrow, FaArrowLeft } from 'react-icons/fa';
 import Usersnavbar from '../components/Usersnavbar';
-
+import Footer from '../components/Footer';
 // DynamicHero Component
 const DynamicHero = () => {
   // Array of headlines and subtexts to rotate through
@@ -498,6 +498,8 @@ const Home = () => {
           </div>
         </div>
       )}
+    
+    <Footer />
     </>
   );
 };

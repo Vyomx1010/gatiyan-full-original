@@ -47,7 +47,8 @@ const Navbar = ({ onNavigate }) => {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <button onClick={() => onNavigate('top')} className="justify-start flex items-center space-x-2">
-            <img className="w-26 h-12" src={logo} alt="Logo" /><span className="text-4xl font-bold text-white mt-2">GatiYan</span>
+            <img className="w-26 h-12" src={logo} alt="Logo" />
+            <span className="text-4xl font-bold text-white mt-2">GatiYan</span>
           </button>
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/home">
@@ -75,12 +76,22 @@ const Navbar = ({ onNavigate }) => {
               </button>
             </Link>
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-red-700 transition-all duration-300"
-              >
-                Logout
-              </button>
+              <>
+                <Link to="/user/history">
+                  <button
+                    onClick={() => handleNavClick('history')}
+                    className="text-gray-300 hover:text-white transition"
+                  >
+                    Rides History
+                  </button>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-red-700 transition-all duration-300"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <Link to="/login">
@@ -136,15 +147,25 @@ const Navbar = ({ onNavigate }) => {
                 </button>
               </Link>
               {isLoggedIn ? (
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="block w-full text-left bg-red-600 hover:bg-red-700 text-white transition mb-4 text-xl"
-                >
-                  Logout
-                </button>
+                <>
+                  <Link to="/user/history">
+                    <button
+                      onClick={() => handleNavClick('history')}
+                      className="block w-full text-left text-gray-300 hover:text-white transition mb-4 text-xl"
+                    >
+                      Rides History
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="block w-full text-left bg-red-600 hover:bg-red-700 text-white transition mb-4 text-xl"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <Link to="/login">
