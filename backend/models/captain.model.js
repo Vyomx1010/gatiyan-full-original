@@ -15,6 +15,36 @@ const captainSchema = new mongoose.Schema({
       minlength: [3, 'Lastname must be at least 3 characters long'],
     },
   },
+  dob:{
+    type: String,
+  },
+  gender:{
+    type: String,
+  },
+  totalearning:{
+    type: String,
+  },
+  isonlinepaymentdone:{
+    type: Boolean,
+  },
+  iscashpaymentdone:{
+    type: Boolean,
+  },
+  todayearning:{
+    type: String,
+  },
+  Monthlyearning:{
+    type: String,
+  },
+  totalrides:{
+    type: String,
+  },
+  totalridescompleted:{
+    type: String,
+  },
+  totalridescancelled:{
+    type: String,
+  },
   email: {
     type: String,
     required: true,

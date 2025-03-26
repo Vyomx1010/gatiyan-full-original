@@ -16,7 +16,7 @@ const CaptainSignup = () => {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: '', // New field for confirm password
+    confirmPassword: '',
     mobileNumber: '',
     drivingLicense: '',
     vehicle: {
@@ -26,33 +26,44 @@ const CaptainSignup = () => {
       type: '',
     },
   });
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for confirm password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Validate driving license number against Indian format: e.g., KA-04-2023-0009646
+  const validateDrivingLicense = (license) => {
+    const regex = /^[A-Z]{2}-\d{2}-\d{4}-\d{7}$/i;
+    return regex.test(license);
+  };
+
+  // Validate vehicle plate number against Indian format: e.g., KA-01-AB-1234
+  const validateVehiclePlate = (plate) => {
+    const regex = /^[A-Z]{2}-\d{2}-[A-Z]{1,2}-\d{4}$/i;
+    return regex.test(plate);
+  };
 
   const updateFormData = (e, section = '') => {
     const { name, value } = e.target;
-  
-    if (section === 'vehicle' && name === 'type') {   // ✅ Kept the same field name
-      const capacity = 
+    if (section === 'vehicle' && name === 'type') {
+      const capacity =
         ['Swift', 'Wagon R', 'Hyundai i20', 'Tiago', 'Swift Dzire'].includes(value)
-          ? '4' 
+          ? '4'
           : ['XLG', 'Ertiga'].includes(value)
-          ? '7' 
+          ? '7'
           : value === 'Toyota Innova'
-          ? '7' 
+          ? '7'
           : '';
-  
       setFormData((prev) => ({
         ...prev,
         vehicle: {
           ...prev.vehicle,
-          type: value,        // ✅ Kept the same key as you provided
-          capacity: capacity, 
+          type: value,
+          capacity: capacity,
         },
       }));
     } else if (section) {
@@ -66,13 +77,11 @@ const CaptainSignup = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  
     if (name === 'password') {
       const strength = calculatePasswordStrength(value);
       setPasswordStrength(strength);
     }
   };
-  
 
   const calculatePasswordStrength = (password) => {
     let strength = 0;
@@ -84,57 +93,96 @@ const CaptainSignup = () => {
     return strength;
   };
 
-  const nextStep = () => {
-    setCurrentStep((prev) => prev + 1);
-  };
+  const nextStep = () => setCurrentStep((prev) => prev + 1);
+  const prevStep = () => setCurrentStep((prev) => prev - 1);
 
-  const prevStep = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!termsAccepted) {
-      toast.error('Please accept the Terms and Conditions to proceed.');
+  // Handler for uploading profile photo using Cloudinary
+  const handleProfilePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed");
       return;
     }
-
-    setIsLoading(true);
-
-    const submitFormData = new FormData();
-    submitFormData.append('fullname[firstname]', formData.firstName);
-    submitFormData.append('fullname[lastname]', formData.lastName);
-    submitFormData.append('email', formData.email);
-    submitFormData.append('password', formData.password);
-    submitFormData.append('mobileNumber', formData.mobileNumber);
-    submitFormData.append('drivingLicense', formData.drivingLicense);
-    submitFormData.append('vehicle[color]', formData.vehicle.color);
-    submitFormData.append('vehicle[plate]', formData.vehicle.plate);
-    submitFormData.append('vehicle[capacity]', formData.vehicle.capacity);
-    submitFormData.append('vehicle[vehicleType]', formData.vehicle.type);
-
-    if (profilePhoto) {
-      submitFormData.append('profilePhoto', profilePhoto);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
     }
-
+    setIsUploading(true);
+    const data = new FormData();
+    data.append("file", file);
+    // Use environment variables for your Cloudinary preset and cloud name
+    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        data
+      );
+      setProfilePhoto(res.data.secure_url);
+      toast.success("Profile photo uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading image", error);
+      toast.error("Image upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  }; 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!termsAccepted) {
+      toast.error("Please accept the Terms and Conditions to proceed.");
+      return;
+    }
+    if (!profilePhoto) {
+      toast.error("Profile photo is required");
+      return;
+    }
+    if (!validateDrivingLicense(formData.drivingLicense)) {
+      toast.error(
+        "Invalid driving license format. Expected format: XX-XX-XXXX-XXXXXXX (e.g., KA-04-2023-0009646)"
+      );
+      return;
+    }
+    if (!validateVehiclePlate(formData.vehicle.plate)) {
+      toast.error(
+        "Invalid vehicle plate format. Expected format: XX-XX-XX-XXXX (e.g., KA-01-AB-1234)"
+      );
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    setIsLoading(true);
+    const submitFormData = new FormData();
+    submitFormData.append("fullname[firstname]", formData.firstName);
+    submitFormData.append("fullname[lastname]", formData.lastName);
+    submitFormData.append("email", formData.email);
+    submitFormData.append("password", formData.password);
+    submitFormData.append("mobileNumber", formData.mobileNumber);
+    submitFormData.append("drivingLicense", formData.drivingLicense);
+    submitFormData.append("vehicle[color]", formData.vehicle.color);
+    submitFormData.append("vehicle[plate]", formData.vehicle.plate);
+    submitFormData.append("vehicle[capacity]", formData.vehicle.capacity);
+    submitFormData.append("vehicle[vehicleType]", formData.vehicle.type);
+    // Send profilePhoto as a URL string
+    submitFormData.append("profilePhoto", profilePhoto);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/captains/register`,
         submitFormData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       if (response.status === 201) {
-        toast.success('OTP sent to your email and mobile number!');
-        navigate('/verify-email-otp', {
-          state: { email: formData.email, userType: 'captain' },
+        toast.success("OTP sent to your email and mobile number!");
+        navigate("/verify-email-otp", {
+          state: { email: formData.email, userType: "captain" },
         });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Signup failed. Please try again.');
+      toast.error(
+        error.response?.data?.message || "Signup failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
       setTermsAccepted(false);
@@ -142,13 +190,21 @@ const CaptainSignup = () => {
   };
 
   const renderPasswordStrengthIndicator = () => {
-    const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-400', 'bg-green-600'];
+    const colors = [
+      "bg-red-500",
+      "bg-orange-500",
+      "bg-yellow-500",
+      "bg-green-400",
+      "bg-green-600",
+    ];
     return (
       <div className="flex space-x-1 mt-1">
         {[...Array(5)].map((_, index) => (
           <div
             key={index}
-            className={`h-1 w-full rounded ${index < passwordStrength ? colors[index] : 'bg-gray-300'}`}
+            className={`h-1 w-full rounded ${
+              index < passwordStrength ? colors[index] : "bg-gray-300"
+            }`}
           />
         ))}
       </div>
@@ -162,7 +218,9 @@ const CaptainSignup = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
                 <input
                   required
                   name="firstName"
@@ -174,7 +232,9 @@ const CaptainSignup = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
                 <input
                   required
                   name="lastName"
@@ -187,7 +247,9 @@ const CaptainSignup = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
               <input
                 required
                 name="email"
@@ -199,12 +261,14 @@ const CaptainSignup = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
               <div className="relative">
                 <input
                   required
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={formData.password}
                   onChange={(e) => updateFormData(e)}
@@ -215,7 +279,7 @@ const CaptainSignup = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  <i className={showPassword ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                  <i className={showPassword ? "ri-eye-off-line" : "ri-eye-line"} />
                 </button>
               </div>
               {renderPasswordStrengthIndicator()}
@@ -224,12 +288,14 @@ const CaptainSignup = () => {
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm Password
+              </label>
               <div className="relative">
                 <input
                   required
                   name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
                   value={formData.confirmPassword}
                   onChange={(e) => updateFormData(e)}
@@ -240,14 +306,48 @@ const CaptainSignup = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  <i className={showConfirmPassword ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                  <i className={showConfirmPassword ? "ri-eye-off-line" : "ri-eye-line"} />
                 </button>
               </div>
+            </div>
+            {/* Profile Photo Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Profile Photo (Required)
+              </label>
+              <input
+                required
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePhotoChange}
+                className="w-full text-black"
+              />
+              {isUploading && (
+                <div className="mt-2">
+                  <span className="text-sm text-gray-700">Uploading...</span>
+                </div>
+              )}
+              {profilePhoto && !isUploading && (
+                <div className="mt-2">
+                  <img
+                    src={profilePhoto}
+                    alt="Profile Preview"
+                    className="w-20 h-20 object-cover rounded-full"
+                  />
+                </div>
+              )}
             </div>
             <button
               type="button"
               onClick={nextStep}
-              disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword}
+              disabled={
+                !formData.firstName ||
+                !formData.lastName ||
+                !formData.email ||
+                !formData.password ||
+                !formData.confirmPassword ||
+                !profilePhoto
+              }
               className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50 transition duration-300"
             >
               Next
@@ -258,7 +358,9 @@ const CaptainSignup = () => {
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Mobile Number
+              </label>
               <div className="flex items-center space-x-2">
                 <span className="text-gray-700">+91</span>
                 <input
@@ -273,12 +375,14 @@ const CaptainSignup = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Driving License Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Driving License Number
+              </label>
               <input
                 required
                 name="drivingLicense"
                 type="text"
-                placeholder="Driving License Number"
+                placeholder="KA-04-2023-0009646"
                 value={formData.drivingLicense}
                 onChange={(e) => updateFormData(e)}
                 className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition duration-300"
@@ -308,7 +412,9 @@ const CaptainSignup = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Color</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Vehicle Color
+                </label>
                 <input
                   required
                   name="color"
@@ -320,12 +426,14 @@ const CaptainSignup = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Plate</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Vehicle Plate
+                </label>
                 <input
                   required
                   name="plate"
                   type="text"
-                  placeholder="Vehicle Plate"
+                  placeholder="KA-01-AB-1234"
                   value={formData.vehicle.plate}
                   onChange={(e) => updateFormData(e, 'vehicle')}
                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition duration-300"
@@ -334,7 +442,9 @@ const CaptainSignup = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Vehicle Type
+                </label>
                 <select
                   required
                   name="type"
@@ -354,7 +464,9 @@ const CaptainSignup = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Capacity
+                </label>
                 <div className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700">
                   {formData.vehicle.capacity || 'Auto-filled'} Seats
                 </div>
@@ -369,7 +481,7 @@ const CaptainSignup = () => {
                 className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
               />
               <label htmlFor="terms" className="text-sm text-gray-700">
-                I accept the{' '}
+                I accept the{" "}
                 <Link to="/terms-and-conditions" className="text-blue-500 hover:underline">
                   Terms and Conditions
                 </Link>
@@ -385,13 +497,24 @@ const CaptainSignup = () => {
               </button>
               <button
                 type="submit"
-                disabled={!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted}
-                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-gray-800'
-                  }`}
+                disabled={
+                  !formData.vehicle.color ||
+                  !formData.vehicle.plate ||
+                  !formData.vehicle.type ||
+                  isLoading ||
+                  !termsAccepted
+                }
+                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${
+                  !formData.vehicle.color ||
+                  !formData.vehicle.plate ||
+                  !formData.vehicle.type ||
+                  isLoading ||
+                  !termsAccepted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-800"
+                }`}
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? "Creating Account..." : "Create Account"}
               </button>
             </div>
           </div>
@@ -422,7 +545,9 @@ const CaptainSignup = () => {
             {[1, 2, 3].map((step) => (
               <div
                 key={step}
-                className={`w-8 h-1 mx-1 rounded-full ${currentStep === step ? 'bg-black' : 'bg-gray-300'}`}
+                className={`w-8 h-1 mx-1 rounded-full ${
+                  currentStep === step ? "bg-black" : "bg-gray-300"
+                }`}
               />
             ))}
           </div>
@@ -433,7 +558,7 @@ const CaptainSignup = () => {
         </form>
 
         <p className="text-center mt-6 text-gray-700">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/captain-login" className="text-black hover:underline">
             Login here
           </Link>

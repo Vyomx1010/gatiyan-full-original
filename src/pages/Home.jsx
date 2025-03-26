@@ -6,13 +6,12 @@ import LocationSearchPanel from '../components/LocationSearchPanel';
 import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import { UserDataContext } from '../context/UserContext';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FaLocationArrow, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { FaLocationArrow, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 import Usersnavbar from '../components/Usersnavbar';
+import Footer from '../components/Footer';
 
-// DynamicHero Component
 const DynamicHero = () => {
-  // Array of headlines and subtexts to rotate through
   const headlines = [
     "Your Ride, Your Journey",
     "Seamless Trips Await You",
@@ -25,14 +24,12 @@ const DynamicHero = () => {
   ];
   const buttonText = "Get Started";
   const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % headlines.length);
     }, 4000); // rotate every 4 seconds
     return () => clearInterval(interval);
   }, []);
-
   return (
     <section
       className="relative flex items-center justify-center h-[50vh] bg-cover bg-center"
@@ -87,6 +84,8 @@ const Home = () => {
 
   // Loader while finding trip
   const [isLoading, setIsLoading] = useState(false);
+  // Loader for current location fetching
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
   // Back confirmation
   const [showBackConfirm, setShowBackConfirm] = useState(false);
@@ -130,7 +129,7 @@ const Home = () => {
     }
   }, [location.state]);
 
-  // Button panel functions
+  // Fetch pickup suggestions as user types
   const handlePickupChange = async (e) => {
     const inputValue = e.target.value;
     setPickup(inputValue);
@@ -152,6 +151,7 @@ const Home = () => {
     }
   };
 
+  // Fetch destination suggestions as user types
   const handleDestinationChange = async (e) => {
     const inputValue = e.target.value;
     setDestination(inputValue);
@@ -210,7 +210,6 @@ const Home = () => {
 
       setCurrentStep('vehicle');
     } catch (error) {
-      // console.error('Error fetching fare or coordinates:', error);
       setErrorModal("Error fetching fare or coordinates: " + error.message);
     } finally {
       setIsLoading(false);
@@ -274,22 +273,15 @@ const Home = () => {
 
   return (
     <>
-      {/* Dynamic Hero Section */}
       <DynamicHero />
-
-      {/* Navbar */}
       <Usersnavbar />
-
-      {/* Main Content */}
       <div className="min-h-screen bg-gray-100 text-gray-800 overflow-y-auto mt-8 p-2">
-        {/* Bottom Panel with a dynamic progress header */}
         <div className="p-2 bg-gray-200 relative">
           <div className="mb-4">
-            {/* Dynamic Step Progress Indicator */}
-            <p className=" ml-16 text-sm text-gray-600">
+            <p className="ml-16 text-sm text-gray-600">
               Step: <span className="font-semibold">{currentStep.toUpperCase()}</span>
             </p>
-            <div className=" h-1 bg-gray-300 rounded-full overflow-hidden">
+            <div className="h-1 bg-gray-300 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 transition-all duration-300"
                 style={{
@@ -306,7 +298,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Back Icon */}
           {currentStep !== 'input' && (
             <button
               onClick={handleBack}
@@ -317,7 +308,6 @@ const Home = () => {
             </button>
           )}
 
-          {/* Loader Overlay */}
           {isLoading && (
             <div className="absolute inset-0 bg-gray-300 bg-opacity-75 flex items-center justify-center z-50">
               <div className="text-xl font-semibold text-gray-800 animate-pulse">
@@ -334,10 +324,13 @@ const Home = () => {
                   <h4 className="text-2xl font-semibold mb-3 animate-fade-in">Find a trip</h4>
                   <form className="relative pb-3" onSubmit={submitHandler}>
                     {/* Pickup Input */}
-                    <div className="relative mb-3">
+                    <div
+                      className="relative mb-3"
+                      onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                    >
                       <input
                         onClick={() => setActiveField('pickup')}
-                        value={pickup}
+                        value={pickup || ""}
                         onChange={handlePickupChange}
                         className="bg-gray-300 text-gray-800 px-12 py-2 text-lg rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition-all"
                         type="text"
@@ -347,39 +340,48 @@ const Home = () => {
                         type="button"
                         onClick={async () => {
                           if (navigator.geolocation) {
+                            setIsLoadingLocation(true);
                             navigator.geolocation.getCurrentPosition(
                               async (position) => {
                                 const { latitude, longitude } = position.coords;
                                 try {
+                                  // Use Nominatim API for reverse geocoding
                                   const response = await axios.get(
-                                    `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-                                    {
-                                      params: { address: `${latitude},${longitude}` },
-                                      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                                    }
+                                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
                                   );
-                                  setPickup(response.data.formatted_address);
+                                  console.log("Reverse geocode response:", response.data);
+                                  if (response.data && response.data.display_name) {
+                                    setPickup(response.data.display_name);
+                                  } else {
+                                    setErrorModal("No human-readable address found.");
+                                  }
                                 } catch (error) {
-                                  // console.error('Error fetching coordinates:', error);
-                                  setErrorModal("Error fetching coordinates: " + error.message);
+                                  setErrorModal("Error fetching reverse geocode: " + error.message);
+                                } finally {
+                                  setIsLoadingLocation(false);
                                 }
                               },
                               (error) => {
-                                // console.error('Error getting geolocation:', error.message);
                                 setErrorModal("Error getting geolocation: " + error.message);
+                                setIsLoadingLocation(false);
                               }
                             );
                           } else {
                             setErrorModal("Geolocation is not supported by this browser.");
                           }
                         }}
-                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-600 hover:text-gray-700 animate-pulse"
+                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-gray-600 hover:text-gray-700"
                       >
-                        <FaLocationArrow className="text-xl" />
+                        {isLoadingLocation ? (
+                          <FaSpinner className="text-xl animate-spin" />
+                        ) : (
+                          <FaLocationArrow className="text-xl" />
+                        )}
                       </button>
                       {activeField === 'pickup' && pickupSuggestions.length > 0 && (
                         <LocationSearchPanel
                           suggestions={pickupSuggestions}
+                          loading={false}
                           onSelect={(suggestion) => {
                             setPickup(suggestion);
                             setActiveField(null);
@@ -389,10 +391,13 @@ const Home = () => {
                     </div>
 
                     {/* Destination Input */}
-                    <div className="relative mb-3">
+                    <div
+                      className="relative mb-3"
+                      onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                    >
                       <input
                         onClick={() => setActiveField('destination')}
-                        value={destination}
+                        value={destination || ""}
                         onChange={handleDestinationChange}
                         className="bg-gray-300 text-gray-800 px-12 py-2 text-lg rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition-all"
                         type="text"
@@ -401,6 +406,7 @@ const Home = () => {
                       {activeField === 'destination' && destinationSuggestions.length > 0 && (
                         <LocationSearchPanel
                           suggestions={destinationSuggestions}
+                          loading={false}
                           onSelect={(suggestion) => {
                             setDestination(suggestion);
                             setActiveField(null);
@@ -498,6 +504,8 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      <Footer />
     </>
   );
 };

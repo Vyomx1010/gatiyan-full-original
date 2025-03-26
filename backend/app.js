@@ -9,15 +9,16 @@ const rideRoutes = require('./routes/ride.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const contactRoutes = require('./routes/contact.routes');
-
+const cookieParser = require('cookie-parser');
+const cors = require('cors'); 
 const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-
+app.use(cors());
 // Connect to MongoDB
 connectToDb();
-
+app.use(cookieParser());
 // ✅ Add CORS middleware (allow all origins)
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

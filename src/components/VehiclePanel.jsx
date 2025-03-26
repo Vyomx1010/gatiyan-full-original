@@ -2,16 +2,17 @@ import React from 'react';
 import 'remixicon/fonts/remixicon.css';
 
 const VehiclePanel = (props) => {
-  // Vehicle types with company names only
+  // Vehicle types with company names and images.
+  // For vehicles without a dedicated image, a dummy placeholder image is used.
   const vehicleTypes = [
-    { type: 'Swift', label: 'Swift', description: 'Compact and affordable rides', seatCount: 4 },
-    { type: 'Wagon R', label: 'Wagon R', description: 'Economical and comfortable', seatCount: 4 },
-    { type: 'Hyundai i20', label: 'Hyundai i20', description: 'Stylish and smooth rides', seatCount: 4 },
-    { type: 'Tiago', label: 'Tiago', description: 'Reliable and efficient', seatCount: 4 },
-    { type: 'Swift Dzire', label: 'Swift Dzire', description: 'Spacious and stylish', seatCount: 4 },
-    { type: 'XLG', label: 'XLG', description: 'Spacious family ride', seatCount: 7 },
-    { type: 'Ertiga', label: 'Ertiga', description: 'Spacious and comfortable', seatCount: 7 },
-    { type: 'Toyota Innova', label: 'Toyota Innova', description: 'Luxury and spaciousness', seatCount: 7 }
+    { type: 'Swift', label: 'Swift', description: 'Compact and affordable rides', seatCount: 4, image: 'https://via.placeholder.com/150?text=Swift' },
+    { type: 'Wagon R', label: 'Wagon R', description: 'Economical and comfortable', seatCount: 4, image: 'https://via.placeholder.com/150?text=Wagon+R' },
+    { type: 'Hyundai i20', label: 'Hyundai i20', description: 'Stylish and smooth rides', seatCount: 4, image: 'https://via.placeholder.com/150?text=Hyundai+i20' },
+    { type: 'Tiago', label: 'Tiago', description: 'Reliable and efficient', seatCount: 4, image: 'https://via.placeholder.com/150?text=Tiago' },
+    { type: 'Swift Dzire', label: 'Swift Dzire', description: 'Spacious and stylish', seatCount: 4, image: 'https://via.placeholder.com/150?text=Swift+Dzire' },
+    { type: 'XLG', label: 'XLG', description: 'Spacious family ride', seatCount: 7, image: 'https://via.placeholder.com/150?text=XLG' },
+    { type: 'Ertiga', label: 'Ertiga', description: 'Spacious and comfortable', seatCount: 7, image: 'https://via.placeholder.com/150?text=Ertiga' },
+    { type: 'Toyota Innova', label: 'Toyota Innova', description: 'Luxury and spaciousness', seatCount: 7, image: 'https://via.placeholder.com/150?text=Toyota+Innova' }
   ];
 
   return (
@@ -34,6 +35,15 @@ const VehiclePanel = (props) => {
               }}
               className="flex border-2 rounded-xl p-3 items-center justify-between cursor-pointer transition-all hover:bg-gray-50 active:border-black"
             >
+              {/* Vehicle Image */}
+              <div className="flex-shrink-0">
+                <img
+                  className="h-16 w-24 object-contain rounded"
+                  src={vehicle.image || 'https://via.placeholder.com/150'}
+                  alt={vehicle.label}
+                />
+              </div>
+
               {/* Vehicle Info */}
               <div className="flex-grow ml-3">
                 <div className="flex items-center gap-2">

@@ -33,9 +33,10 @@ const UserLogin = () => {
         const data = response.data;
         setUser(data.user);
         localStorage.setItem('token', data.token);
+        // Set userType to "user" for regular users
+        localStorage.setItem('userType', 'user');
         toast.success('Login successful! Redirecting...');
         
-        // Check if there's a redirect instruction from pending ride state
         const redirectAfterLogin = location.state?.redirectAfterLogin;
         if (redirectAfterLogin) {
           navigate(redirectAfterLogin);

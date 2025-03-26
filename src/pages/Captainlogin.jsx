@@ -18,33 +18,34 @@ const Captainlogin = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-
+    setLoading(true);
+    
     const captainData = {
       email: email,
       password: password,
     };
-
+  
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/captains/login`,
         captainData
       );
-
+  
       if (response.status === 200) {
         const data = response.data;
         setCaptain(data.captain);
         localStorage.setItem('token', data.token);
-        toast.success('Login successful! Redirecting...'); // Success popup
+        // Set the userType to captain so that Navbar renders the captain menu.
+        localStorage.setItem('userType', 'captain');
+        toast.success('Login successful! Redirecting...');
         setTimeout(() => {
           navigate('/captain-home');
-        }, 2000); // Redirect after 2 seconds
+        }, 2000);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
-      toast.error(errorMsg); // Error popup
-
-      // Handle unverified email/mobile scenario
+      toast.error(errorMsg);
+  
       if (error.response?.status === 401 && errorMsg.includes("verify your email")) {
         const { email: responseEmail, mobileNumber } = error.response.data.captain || {};
         toast.info('Verification required. Redirecting to OTP verification...');
@@ -55,11 +56,12 @@ const Captainlogin = () => {
         }, 2000);
       }
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
       setEmail('');
       setPassword('');
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">

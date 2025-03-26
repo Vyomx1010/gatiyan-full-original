@@ -1,13 +1,17 @@
-import React from 'react';
+import React from "react";
+import { FaSpinner } from "react-icons/fa";
 
-const LocationSearchPanel = ({ suggestions, onSelect }) => {
-  // Ensure suggestions is always an array
+const LocationSearchPanel = ({ suggestions, onSelect, loading }) => {
   const safeSuggestions = Array.isArray(suggestions) ? suggestions : [];
-
+  
   return (
     <>
       <div className="absolute left-0 right-0 text-black bg-white border border-gray-100 rounded shadow mt-1 max-h-60 overflow-y-auto z-50 animate-fade-in">
-        {safeSuggestions.length > 0 ? (
+        {loading ? (
+          <div className="p-2 flex items-center justify-center">
+            <FaSpinner className="animate-spin mr-2" /> Loading suggestions...
+          </div>
+        ) : safeSuggestions.length > 0 ? (
           safeSuggestions.map((suggestion, index) => (
             <div
               key={index}
@@ -18,7 +22,9 @@ const LocationSearchPanel = ({ suggestions, onSelect }) => {
             </div>
           ))
         ) : (
-            <div className="p-2 transition-colors duration-200 hover:bg-gray-600 cursor-pointer">No suggestions available</div>
+          <div className="p-2 transition-colors duration-200 hover:bg-gray-600 cursor-pointer">
+            No suggestions available
+          </div>
         )}
       </div>
       <style>{`

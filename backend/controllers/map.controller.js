@@ -9,11 +9,25 @@ module.exports.getCoordinates = async (req, res, next) => {
   }
 
   const { address } = req.query;
-  // console.log('[map.controller] Received address:', address);
 
+  // Check if the address is in "lat,lng" format.
+  const coordinateRegex = /^-?\d+\.?\d*,\s*-?\d+\.?\d*$/;
+  if (coordinateRegex.test(address)) {
+    // Perform reverse geocoding using a service method.
+    try {
+      // NOTE: Implement reverseGeocode in your maps service.
+      const formattedAddress = await mapService.reverseGeocode(address);
+      const [lat, lng] = address.split(',').map(num => parseFloat(num.trim()));
+      return res.status(200).json({ formatted_address: formattedAddress, lat, lng });
+    } catch (error) {
+      console.error('[map.controller] Reverse geocoding error:', error.message);
+      return res.status(404).json({ message: 'Reverse geocoding failed', error: error.message });
+    }
+  }
+
+  // Otherwise use forward geocoding.
   try {
     const coordinates = await mapService.getAddressCoordinate(address);
-    // console.log('[map.controller] Coordinates found:', coordinates);
     return res.status(200).json(coordinates);
   } catch (error) {
     console.error('[map.controller] Error fetching coordinates:', error.message);

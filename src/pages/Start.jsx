@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Car, Shield, Clock } from 'lucide-react';
+import { Car, Shield, Clock, Flashlight, MapPin, Wallet, Headset, DollarSign } from 'lucide-react';
 import Navbar from '../components/Landing/Navbar';
 import Input from '../components/Landing/Input';
 import Button from '../components/Landing/Button';
@@ -9,10 +9,11 @@ import TestimonialCard from '../components/Landing/TestimonialCard';
 import FloatingBooking from '../components/Landing/FloatingBooking';
 import ScrollToTop from '../components/Landing/ScrollToTop';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaLocationArrow } from 'react-icons/fa';
+import { FaLocationArrow, FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import GatiyanSections from '../components/GatiyanSections';
+import Footer from '../components/Footer';
 
 function Start() {
   const navigate = useNavigate();
@@ -21,15 +22,22 @@ function Start() {
   const [pickup, setPickup] = useState('');
   const [destination, setDestination] = useState('');
 
+  // Loader state for get-coordinates call
+  const [isLoading, setIsLoading] = useState(false);
+
   // States for suggestions and active field
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
   const [activeField, setActiveField] = useState(null);
 
+  // New loading states for suggestions
+  const [isLoadingPickupSuggestions, setIsLoadingPickupSuggestions] = useState(false);
+  const [isLoadingDestinationSuggestions, setIsLoadingDestinationSuggestions] = useState(false);
+
   // State for FAQ toggle functionality: [q1, q2, q3]
   const [faqOpen, setFaqOpen] = useState([false, false, false]);
 
-  // Redesigned Services data with icons and descriptive text
+  // Redesigned Services data with icons and descriptive text  
   const services = [
     {
       title: "Premium Rides",
@@ -39,12 +47,37 @@ function Start() {
     {
       title: "Safe Journey",
       icon: Shield,
-      description: "Your safety is our priority. Our drivers are thoroughly vetted, and our vehicles are maintained with the highest standards."
+      description: "Your safety is our priority. Our drivers are thoroughly vetted, and our vehicles are maintained to the highest standards."
     },
     {
       title: "24/7 Availability",
       icon: Clock,
       description: "No matter when you need us, our service is always on. We are available round the clock to cater to your transportation needs."
+    },
+    {
+      title: "Instant Booking",
+      icon: Flashlight,
+      description: "Book your ride instantly through our user-friendly app interface for a seamless experience."
+    },
+    {
+      title: "Real-time Tracking",
+      icon: MapPin,
+      description: "Keep track of your ride in real time with our live tracking feature, ensuring transparency and peace of mind."
+    },
+    {
+      title: "Seamless Payments",
+      icon: Wallet,
+      description: "Make hassle-free payments using our integrated payment gateway with multiple secure options."
+    },
+    {
+      title: "Efficient Support",
+      icon: Headset,
+      description: "Get round-the-clock customer support to address any queries or issues promptly and efficiently."
+    },
+    {
+      title: "Affordable Fares",
+      icon: DollarSign,
+      description: "Enjoy competitive pricing and transparent fare calculations that provide value for every ride."
     }
   ];
 
@@ -104,6 +137,7 @@ function Start() {
     const value = e.target.value;
     setPickup(value);
     if (value.length >= 3) {
+      setIsLoadingPickupSuggestions(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -115,6 +149,9 @@ function Start() {
         setPickupSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching pickup suggestions:', error);
+        setPickupSuggestions([]);
+      } finally {
+        setIsLoadingPickupSuggestions(false);
       }
     } else {
       setPickupSuggestions([]);
@@ -126,6 +163,7 @@ function Start() {
     const value = e.target.value;
     setDestination(value);
     if (value.length >= 3) {
+      setIsLoadingDestinationSuggestions(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -137,34 +175,44 @@ function Start() {
         setDestinationSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching destination suggestions:', error);
+        setDestinationSuggestions([]);
+      } finally {
+        setIsLoadingDestinationSuggestions(false);
       }
     } else {
       setDestinationSuggestions([]);
     }
   };
 
-  // Autofill pickup with current location using geolocation
+  // Autofill pickup with current location using geolocation and reverse geocoding
   const autofillPickup = () => {
     if (navigator.geolocation) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
+            // Use Nominatim API for reverse geocoding to get a human-readable address
             const response = await axios.get(
-              `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-              {
-                params: { address: `${latitude},${longitude}` },
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-              }
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             );
-            setPickup(response.data.formatted_address);
+            console.log("Reverse geocode response:", response.data);
+            if (response.data && response.data.display_name) {
+              setPickup(response.data.display_name);
+            } else {
+              alert('Could not retrieve a human-readable address.');
+            }
           } catch (error) {
-            console.error('Error fetching coordinates:', error);
+            console.error('Error fetching reverse geocode:', error);
+            alert('Error fetching reverse geocode: ' + error.message);
+          } finally {
+            setIsLoading(false);
           }
         },
         (error) => {
           console.error('Error getting geolocation:', error.message);
           alert('Unable to access your current location. Please enable location services.');
+          setIsLoading(false);
         }
       );
     } else {
@@ -234,9 +282,12 @@ function Start() {
                 <h2 className="text-2xl font-bold text-white mb-6">Book Your Ride</h2>
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {/* Pickup Field */}
-                  <div className="relative">
+                  <div
+                    className="relative"
+                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  >
                     <Input
-                      value={pickup}
+                      value={pickup || ""}
                       onChange={handlePickupChange}
                       placeholder="Pickup Location"
                       type="text"
@@ -244,16 +295,23 @@ function Start() {
                       onClick={() => setActiveField('pickup')}
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={autofillPickup}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-black"
-                    >
-                      <FaLocationArrow className="text-xl" />
-                    </button>
-                    {activeField === 'pickup' && pickupSuggestions.length > 0 && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {isLoading ? (
+                        <FaSpinner className="text-xl animate-spin text-gray-600" />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={autofillPickup}
+                          className="text-gray-600 hover:text-black"
+                        >
+                          <FaLocationArrow className="text-xl" />
+                        </button>
+                      )}
+                    </div>
+                    {activeField === 'pickup' && (
                       <LocationSearchPanel
                         suggestions={pickupSuggestions}
+                        loading={isLoadingPickupSuggestions}
                         onSelect={(suggestion) => {
                           setPickup(suggestion);
                           setActiveField(null);
@@ -262,9 +320,12 @@ function Start() {
                     )}
                   </div>
                   {/* Destination Field */}
-                  <div className="relative">
+                  <div
+                    className="relative"
+                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  >
                     <Input
-                      value={destination}
+                      value={destination || ""}
                       onChange={handleDestinationChange}
                       placeholder="Destination"
                       type="text"
@@ -272,9 +333,10 @@ function Start() {
                       onClick={() => setActiveField('destination')}
                       required
                     />
-                    {activeField === 'destination' && destinationSuggestions.length > 0 && (
+                    {activeField === 'destination' && (
                       <LocationSearchPanel
                         suggestions={destinationSuggestions}
+                        loading={isLoadingDestinationSuggestions}
                         onSelect={(suggestion) => {
                           setDestination(suggestion);
                           setActiveField(null);
@@ -338,9 +400,9 @@ function Start() {
           </div>
         </div>
       </section>
-            {/* Images and banner description */}
-            <GatiyanSections/>
 
+      {/* Images and banner description */}
+      <GatiyanSections />
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-100">
@@ -415,98 +477,7 @@ function Start() {
       </section>
 
       {/* Footer Section */}
-      <footer className="bg-black text-white py-12">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Gatiyan</h3>
-              <p className="text-gray-400">Your premium ride service</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="text-gray-400 hover:text-white transition"
-                  >
-                    Services
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection('faq')}
-                    className="text-gray-400 hover:text-white transition"
-                  >
-                    FAQ
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection('how-it-works')}
-                    className="text-gray-400 hover:text-white transition"
-                  >
-                    How It Works
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2">
-                <li>
-                  <button className="text-gray-400 hover:text-white transition">
-                    Premium Rides
-                  </button>
-                </li>
-                <li>
-                  <button className="text-gray-400 hover:text-white transition">
-                    Airport Transfer
-                  </button>
-                </li>
-                <li>
-                  <button className="text-gray-400 hover:text-white transition">
-                    Corporate Service
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Follow Us</h4>
-              <div className="flex space-x-4">
-                <button className="text-gray-400 hover:text-white transition">
-                  Twitter
-                </button>
-                <button className="text-gray-400 hover:text-white transition">
-                  Facebook
-                </button>
-                <button className="text-gray-400 hover:text-white transition">
-                  Instagram
-                </button>
-              </div>
-            </div>
-          </div>
-          {/* Additional Policy Links */}
-          <div className="mt-8 flex justify-center space-x-6">
-            <a
-              href="/terms-and-conditions"
-              className="text-gray-400 hover:text-white transition"
-            >
-              Terms &amp; Conditions
-            </a>
-            <a
-              href="/privacy-policy"
-              className="text-gray-400 hover:text-white transition"
-            >
-              Privacy Policy
-            </a>
-          </div>
-          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400">
-            <p>&copy; 2025 Gatiyan. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
+      <Footer />
     </div>
   );
 }
