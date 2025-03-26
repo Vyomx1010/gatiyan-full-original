@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Car, Shield, Clock } from 'lucide-react';
+import { Car, Shield, Clock, Flashlight, MapPin, Wallet, Headset, DollarSign } from 'lucide-react';
 import Navbar from '../components/Landing/Navbar';
 import Input from '../components/Landing/Input';
 import Button from '../components/Landing/Button';
@@ -38,6 +38,7 @@ function Start() {
   const [faqOpen, setFaqOpen] = useState([false, false, false]);
 
   // Redesigned Services data with icons and descriptive text
+  
   const services = [
     {
       title: "Premium Rides",
@@ -47,12 +48,37 @@ function Start() {
     {
       title: "Safe Journey",
       icon: Shield,
-      description: "Your safety is our priority. Our drivers are thoroughly vetted, and our vehicles are maintained with the highest standards."
+      description: "Your safety is our priority. Our drivers are thoroughly vetted, and our vehicles are maintained to the highest standards."
     },
     {
       title: "24/7 Availability",
       icon: Clock,
       description: "No matter when you need us, our service is always on. We are available round the clock to cater to your transportation needs."
+    },
+    {
+      title: "Instant Booking",
+      icon: Flashlight,
+      description: "Book your ride instantly through our user-friendly app interface for a seamless experience."
+    },
+    {
+      title: "Real-time Tracking",
+      icon: MapPin,
+      description: "Keep track of your ride in real time with our live tracking feature, ensuring transparency and peace of mind."
+    },
+    {
+      title: "Seamless Payments",
+      icon: Wallet,
+      description: "Make hassle-free payments using our integrated payment gateway with multiple secure options."
+    },
+    {
+      title: "Efficient Support",
+      icon: Headset,
+      description: "Get round-the-clock customer support to address any queries or issues promptly and efficiently."
+    },
+    {
+      title: "Affordable Fares",
+      icon: DollarSign,
+      description: "Enjoy competitive pricing and transparent fare calculations that provide value for every ride."
     }
   ];
 
