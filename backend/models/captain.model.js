@@ -24,6 +24,12 @@ const captainSchema = new mongoose.Schema({
   totalearning:{
     type: String,
   },
+  isonlinepaymentdone:{
+    type: Boolean,
+  },
+  iscashpaymentdone:{
+    type: Boolean,
+  },
   todayearning:{
     type: String,
   },
