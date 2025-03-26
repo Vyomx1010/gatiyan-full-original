@@ -30,6 +30,10 @@ function Start() {
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
   const [activeField, setActiveField] = useState(null);
 
+  // New loading states for suggestions
+  const [isLoadingPickupSuggestions, setIsLoadingPickupSuggestions] = useState(false);
+  const [isLoadingDestinationSuggestions, setIsLoadingDestinationSuggestions] = useState(false);
+
   // State for FAQ toggle functionality: [q1, q2, q3]
   const [faqOpen, setFaqOpen] = useState([false, false, false]);
 
@@ -108,6 +112,7 @@ function Start() {
     const value = e.target.value;
     setPickup(value);
     if (value.length >= 3) {
+      setIsLoadingPickupSuggestions(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -119,6 +124,9 @@ function Start() {
         setPickupSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching pickup suggestions:', error);
+        setPickupSuggestions([]);
+      } finally {
+        setIsLoadingPickupSuggestions(false);
       }
     } else {
       setPickupSuggestions([]);
@@ -130,6 +138,7 @@ function Start() {
     const value = e.target.value;
     setDestination(value);
     if (value.length >= 3) {
+      setIsLoadingDestinationSuggestions(true);
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`,
@@ -141,6 +150,9 @@ function Start() {
         setDestinationSuggestions(response.data);
       } catch (error) {
         console.error('Error fetching destination suggestions:', error);
+        setDestinationSuggestions([]);
+      } finally {
+        setIsLoadingDestinationSuggestions(false);
       }
     } else {
       setDestinationSuggestions([]);
@@ -242,7 +254,10 @@ function Start() {
                 <h2 className="text-2xl font-bold text-white mb-6">Book Your Ride</h2>
                 <form className="space-y-4" onSubmit={handleSubmit}>
                   {/* Pickup Field */}
-                  <div className="relative">
+                  <div
+                    className="relative"
+                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  >
                     <Input
                       value={pickup}
                       onChange={handlePickupChange}
@@ -265,9 +280,10 @@ function Start() {
                         </button>
                       )}
                     </div>
-                    {activeField === 'pickup' && pickupSuggestions.length > 0 && (
+                    {activeField === 'pickup' && (
                       <LocationSearchPanel
                         suggestions={pickupSuggestions}
+                        loading={isLoadingPickupSuggestions}
                         onSelect={(suggestion) => {
                           setPickup(suggestion);
                           setActiveField(null);
@@ -276,7 +292,10 @@ function Start() {
                     )}
                   </div>
                   {/* Destination Field */}
-                  <div className="relative">
+                  <div
+                    className="relative"
+                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  >
                     <Input
                       value={destination}
                       onChange={handleDestinationChange}
@@ -286,9 +305,10 @@ function Start() {
                       onClick={() => setActiveField('destination')}
                       required
                     />
-                    {activeField === 'destination' && destinationSuggestions.length > 0 && (
+                    {activeField === 'destination' && (
                       <LocationSearchPanel
                         suggestions={destinationSuggestions}
+                        loading={isLoadingDestinationSuggestions}
                         onSelect={(suggestion) => {
                           setDestination(suggestion);
                           setActiveField(null);
@@ -354,7 +374,7 @@ function Start() {
       </section>
 
       {/* Images and banner description */}
-      <GatiyanSections/>
+      <GatiyanSections />
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-100">
@@ -430,7 +450,6 @@ function Start() {
 
       {/* Footer Section */}
       <Footer />
-
     </div>
   );
 }

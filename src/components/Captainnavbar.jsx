@@ -51,6 +51,7 @@ const Captainnavbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo Section */}
           <div className="flex-shrink-0 flex items-center">
+            <Link to="/">
             <h1
               className={`text-xl font-bold transition-colors duration-500 ${
                 isScrolled ? currentTheme.scrolledText : currentTheme.text
@@ -58,6 +59,7 @@ const Captainnavbar = () => {
             >
               GatiYan
             </h1>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
