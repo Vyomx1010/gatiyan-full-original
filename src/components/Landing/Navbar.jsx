@@ -21,7 +21,11 @@ const Navbar = ({ onNavigate }) => {
   // Check login state using localStorage token
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    if (token && token !== "undefined" && token.trim() !== "") {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
   }, []);
 
   const handleLogout = () => {

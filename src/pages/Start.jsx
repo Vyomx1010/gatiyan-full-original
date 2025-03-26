@@ -9,17 +9,21 @@ import TestimonialCard from '../components/Landing/TestimonialCard';
 import FloatingBooking from '../components/Landing/FloatingBooking';
 import ScrollToTop from '../components/Landing/ScrollToTop';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaLocationArrow } from 'react-icons/fa';
+import { FaLocationArrow, FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import GatiyanSections from '../components/GatiyanSections';
 import Footer from '../components/Footer';
+
 function Start() {
   const navigate = useNavigate();
 
   // Ride input states
   const [pickup, setPickup] = useState('');
   const [destination, setDestination] = useState('');
+
+  // Loader state for get-coordinates call
+  const [isLoading, setIsLoading] = useState(false);
 
   // States for suggestions and active field
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
@@ -143,9 +147,10 @@ function Start() {
     }
   };
 
-  // Autofill pickup with current location using geolocation
+  // Autofill pickup with current location using geolocation and show loader
   const autofillPickup = () => {
     if (navigator.geolocation) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -160,11 +165,14 @@ function Start() {
             setPickup(response.data.formatted_address);
           } catch (error) {
             console.error('Error fetching coordinates:', error);
+          } finally {
+            setIsLoading(false);
           }
         },
         (error) => {
           console.error('Error getting geolocation:', error.message);
           alert('Unable to access your current location. Please enable location services.');
+          setIsLoading(false);
         }
       );
     } else {
@@ -244,13 +252,19 @@ function Start() {
                       onClick={() => setActiveField('pickup')}
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={autofillPickup}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-black"
-                    >
-                      <FaLocationArrow className="text-xl" />
-                    </button>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {isLoading ? (
+                        <FaSpinner className="text-xl animate-spin text-gray-600" />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={autofillPickup}
+                          className="text-gray-600 hover:text-black"
+                        >
+                          <FaLocationArrow className="text-xl" />
+                        </button>
+                      )}
+                    </div>
                     {activeField === 'pickup' && pickupSuggestions.length > 0 && (
                       <LocationSearchPanel
                         suggestions={pickupSuggestions}
@@ -338,9 +352,9 @@ function Start() {
           </div>
         </div>
       </section>
-            {/* Images and banner description */}
-            <GatiyanSections/>
 
+      {/* Images and banner description */}
+      <GatiyanSections/>
 
       {/* Testimonials Section */}
       <section className="py-20 bg-gray-100">

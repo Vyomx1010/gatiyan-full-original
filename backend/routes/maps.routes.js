@@ -5,7 +5,6 @@ const { query } = require('express-validator');
 
 router.get(
   '/get-coordinates',
-  // Validate that address is a string and has at least 3 characters
   query('address').isString().isLength({ min: 3 }).withMessage('Invalid address'),
   mapController.getCoordinates
 );
