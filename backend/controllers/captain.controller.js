@@ -4,6 +4,8 @@ const { validationResult } = require("express-validator");
 const { generateOTP } = require("../utils/otp.utils");
 const { sendEmailOTP } = require("../services/communication.service");
 const rideModel = require("../models/ride.model");
+const blackListTokenModel = require('../models/blackListToken.model'); // adjust the path as needed
+
 
 module.exports.registerCaptain = async (req, res, next) => {
   const errors = validationResult(req);

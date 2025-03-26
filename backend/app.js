@@ -9,6 +9,7 @@ const rideRoutes = require('./routes/ride.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const contactRoutes = require('./routes/contact.routes');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
 // Connect to MongoDB
 connectToDb();
-
+app.use(cookieParser());
 // ✅ Add CORS middleware (allow all origins)
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

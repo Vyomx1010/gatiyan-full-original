@@ -7,7 +7,7 @@ export const CaptainLogout = () => {
 
   useEffect(() => {
     const logoutCaptain = async () => {
-      const token = localStorage.getItem('token'); // Use consistent 'token' key
+      const token = localStorage.getItem('token'); 
       if (!token) {
         console.log('No token found, redirecting to login');
         navigate('/captain-login');
