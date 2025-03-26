@@ -152,7 +152,7 @@ const RideManagement = () => {
                           <option value="">Select a captain</option>
                           {captains.map((captain) => (
                             <option key={captain._id} value={captain._id}>
-                              {captain.fullname.firstname} {captain.fullname.lastname} ({captain.vehicle?.vehicleType})
+                              {captain.fullname.firstname} {captain.fullname.lastname} ({captain.vehicle?.vehicleType}) {captain.email}
                             </option>
                           ))}
                         </select>
