@@ -34,6 +34,18 @@ const CaptainSignup = () => {
   const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle for confirm password visibility
 
+  // Validate driving license number against Indian format: e.g., KA-04-2023-0009646
+  const validateDrivingLicense = (license) => {
+    const regex = /^[A-Z]{2}-\d{2}-\d{4}-\d{7}$/i;
+    return regex.test(license);
+  };
+
+  // Validate vehicle plate number against Indian format: e.g., KA-01-AB-1234
+  const validateVehiclePlate = (plate) => {
+    const regex = /^[A-Z]{2}-\d{2}-[A-Z]{1,2}-\d{4}$/i;
+    return regex.test(plate);
+  };
+
   const updateFormData = (e, section = '') => {
     const { name, value } = e.target;
   
@@ -97,6 +109,20 @@ const CaptainSignup = () => {
 
     if (!termsAccepted) {
       toast.error('Please accept the Terms and Conditions to proceed.');
+      return;
+    }
+
+    // Frontend validations for driving license and vehicle plate
+    if (!validateDrivingLicense(formData.drivingLicense)) {
+      toast.error('Invalid driving license format. Expected format: XX-XX-XXXX-XXXXXXX (e.g., KA-04-2023-0009646)');
+      return;
+    }
+    if (!validateVehiclePlate(formData.vehicle.plate)) {
+      toast.error('Invalid vehicle plate format. Expected format: XX-XX-XX-XXXX (e.g., KA-01-AB-1234)');
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match.');
       return;
     }
 
@@ -278,7 +304,7 @@ const CaptainSignup = () => {
                 required
                 name="drivingLicense"
                 type="text"
-                placeholder="Driving License Number"
+                placeholder="KA-04-2023-0009646"
                 value={formData.drivingLicense}
                 onChange={(e) => updateFormData(e)}
                 className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition duration-300"
@@ -325,7 +351,7 @@ const CaptainSignup = () => {
                   required
                   name="plate"
                   type="text"
-                  placeholder="Vehicle Plate"
+                  placeholder="KA-01-AB-1234"
                   value={formData.vehicle.plate}
                   onChange={(e) => updateFormData(e, 'vehicle')}
                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition duration-300"
@@ -386,10 +412,11 @@ const CaptainSignup = () => {
               <button
                 type="submit"
                 disabled={!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted}
-                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${!formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted
+                className={`w-1/2 bg-black text-white py-2 rounded-lg transition duration-300 ${
+                  !formData.vehicle.color || !formData.vehicle.plate || !formData.vehicle.type || isLoading || !termsAccepted
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-gray-800'
-                  }`}
+                }`}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
