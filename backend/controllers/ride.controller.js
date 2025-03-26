@@ -379,13 +379,15 @@ module.exports.getUserRideHistory = async (req, res) => {
   try {
     const rides = await rideModel
       .find({ user: req.user._id })
-      .populate('captain', 'fullname vehicle')
+      .populate('user', 'fullname profilePhoto')          // Populate rider details (profile photo and fullname)
+      .populate('captain', 'fullname profilePhoto vehicle') // Populate captain details (including profile photo)
       .sort({ createdAt: -1 });
     res.status(200).json(rides);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 module.exports.getCaptainRideHistory = async (req, res) => {
   try {

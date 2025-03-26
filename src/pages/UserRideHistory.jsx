@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -10,9 +10,12 @@ const UserRideHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
-  const [refreshCooldown, setRefreshCooldown] = useState(0); // Cooldown in seconds
+  const [refreshCooldown, setRefreshCooldown] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedRide, setSelectedRide] = useState(null);
+  // New state for image preview
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
 
   const statusTabs = [
     { key: "all", label: "All", color: "gray" },
@@ -44,7 +47,6 @@ const UserRideHistory = () => {
     fetchRideHistory();
   }, []);
 
-  // Handle refresh button click with cooldown
   const handleRefresh = () => {
     if (refreshCooldown === 0) {
       fetchRideHistory();
@@ -52,7 +54,6 @@ const UserRideHistory = () => {
     }
   };
 
-  // Cooldown timer
   useEffect(() => {
     if (refreshCooldown > 0) {
       const timer = setInterval(() => {
@@ -62,17 +63,21 @@ const UserRideHistory = () => {
     }
   }, [refreshCooldown]);
 
-  
-
   const filteredRides = () => {
     if (activeTab === "all") return rides;
     return rides.filter((ride) => ride.status.toLowerCase() === activeTab);
   };
 
-  // Function to handle card click
+  // Opens ride details modal
   const handleCardClick = (ride) => {
     setSelectedRide(ride);
     setShowModal(true);
+  };
+
+  // Opens image preview modal with larger image
+  const openImagePreview = (imageUrl) => {
+    setPreviewImage(imageUrl);
+    setShowImagePreview(true);
   };
 
   const renderRideCard = (ride) => (
@@ -128,19 +133,44 @@ const UserRideHistory = () => {
           </p>
         </div>
         {ride.captain && (
-          <div className="flex items-center">
-            <FaUser className="text-orange-600 mr-2" />
+          <div className="flex items-center space-x-2">
+            {ride.captain.profilePhoto ? (
+              <img
+                src={ride.captain.profilePhoto}
+                alt={`${ride.captain.fullname.firstname} ${ride.captain.fullname.lastname}`}
+                className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openImagePreview(ride.captain.profilePhoto);
+                }}
+              />
+            ) : (
+              <FaUser className="text-orange-600" />
+            )}
             <p className="text-gray-700 truncate">
               <strong>Captain:</strong> {ride.captain.fullname.firstname}{" "}
               {ride.captain.fullname.lastname}
             </p>
           </div>
         )}
+        {ride.user && ride.user.profilePhoto && (
+          <div className="flex items-center mt-2">
+            <img
+              src={ride.user.profilePhoto}
+              alt="Rider"
+              className="w-8 h-8 rounded-full object-cover cursor-pointer mr-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                openImagePreview(ride.user.profilePhoto);
+              }}
+            />
+            <p className="text-gray-700">Rider</p>
+          </div>
+        )}
       </div>
     </motion.div>
   );
 
-  // Function to generate custom message based on ride status
   const getStatusMessage = (ride) => {
     if (!ride) return "";
     const { status, pickup, destination, rideDate, rideTime } = ride;
@@ -203,7 +233,7 @@ const UserRideHistory = () => {
             </button>
           </div>
 
-          {/* Tabbed Navigation */}
+          {/* Tab Navigation */}
           <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
             {statusTabs.map((tab) => (
               <button
@@ -254,7 +284,7 @@ const UserRideHistory = () => {
         </div>
       </div>
 
-      {/* Modal Popup */}
+      {/* Ride Details Modal */}
       {showModal && selectedRide && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div
@@ -265,11 +295,34 @@ const UserRideHistory = () => {
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800">
               Ride Details
             </h2>
+            {selectedRide.captain && selectedRide.captain.profilePhoto && (
+              <div className="flex items-center mb-4">
+                <img
+                  src={selectedRide.captain.profilePhoto}
+                  alt={`${selectedRide.captain.fullname.firstname} ${selectedRide.captain.fullname.lastname}`}
+                  className="w-12 h-12 rounded-full object-cover mr-3 cursor-pointer"
+                  onClick={() => openImagePreview(selectedRide.captain.profilePhoto)}
+                />
+                <p className="text-gray-700 font-semibold">
+                  {selectedRide.captain.fullname.firstname} {selectedRide.captain.fullname.lastname}
+                </p>
+              </div>
+            )}
+            {selectedRide.user && selectedRide.user.profilePhoto && (
+              <div className="flex items-center mb-4">
+                <img
+                  src={selectedRide.user.profilePhoto}
+                  alt="Rider"
+                  className="w-12 h-12 rounded-full object-cover mr-3 cursor-pointer"
+                  onClick={() => openImagePreview(selectedRide.user.profilePhoto)}
+                />
+                <p className="text-gray-700 font-semibold">Rider</p>
+              </div>
+            )}
             <p className="text-gray-700 text-sm sm:text-base mb-4">
               {getStatusMessage(selectedRide)}
             </p>
             <p className="text-gray-600 text-xs sm:text-sm mb-6">
-              {/* Small bit explanation of the ride */}
               From <strong>{selectedRide.pickup}</strong> to{" "}
               <strong>{selectedRide.destination}</strong> on{" "}
               <strong>{selectedRide.rideDate}</strong> at{" "}
@@ -285,6 +338,29 @@ const UserRideHistory = () => {
         </div>
       )}
 
+      {/* Image Preview Modal */}
+      {showImagePreview && previewImage && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="absolute inset-0 bg-black opacity-75"
+            onClick={() => setShowImagePreview(false)}
+          ></div>
+          <div className="relative z-10 p-4">
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full max-h-screen rounded-lg shadow-2xl"
+            />
+            <button
+              onClick={() => setShowImagePreview(false)}
+              className="absolute top-4 right-4 bg-white rounded-full p-2 shadow hover:bg-gray-200"
+            >
+              &#x2715;
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Custom CSS for Animation and Scrollbar */}
       <style>{`
         .animate-spin-slow {
@@ -295,6 +371,9 @@ const UserRideHistory = () => {
         }
         .scrollbar-thumb-gray-400 {
           scrollbar-color: #9ca3af #e5e7eb;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         @media (max-width: 640px) {
           h1 {
