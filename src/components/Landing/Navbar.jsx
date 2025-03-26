@@ -19,7 +19,7 @@ const Navbar = ({ onNavigate }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Check login state and enforce lowercase check for userType
+  // Check login state and userType from localStorage
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedType = localStorage.getItem("userType");
