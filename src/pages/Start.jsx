@@ -37,8 +37,7 @@ function Start() {
   // State for FAQ toggle functionality: [q1, q2, q3]
   const [faqOpen, setFaqOpen] = useState([false, false, false]);
 
-  // Redesigned Services data with icons and descriptive text
-  
+  // Redesigned Services data with icons and descriptive text  
   const services = [
     {
       title: "Premium Rides",
@@ -185,7 +184,7 @@ function Start() {
     }
   };
 
-  // Autofill pickup with current location using geolocation and show loader
+  // Autofill pickup with current location using geolocation and reverse geocoding
   const autofillPickup = () => {
     if (navigator.geolocation) {
       setIsLoading(true);
@@ -193,16 +192,19 @@ function Start() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
+            // Use Nominatim API for reverse geocoding to get a human-readable address
             const response = await axios.get(
-              `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-              {
-                params: { address: `${latitude},${longitude}` },
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-              }
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             );
-            setPickup(response.data.formatted_address);
+            console.log("Reverse geocode response:", response.data);
+            if (response.data && response.data.display_name) {
+              setPickup(response.data.display_name);
+            } else {
+              alert('Could not retrieve a human-readable address.');
+            }
           } catch (error) {
-            console.error('Error fetching coordinates:', error);
+            console.error('Error fetching reverse geocode:', error);
+            alert('Error fetching reverse geocode: ' + error.message);
           } finally {
             setIsLoading(false);
           }
@@ -285,7 +287,7 @@ function Start() {
                     onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   >
                     <Input
-                      value={pickup}
+                      value={pickup || ""}
                       onChange={handlePickupChange}
                       placeholder="Pickup Location"
                       type="text"
@@ -323,7 +325,7 @@ function Start() {
                     onBlur={() => setTimeout(() => setActiveField(null), 200)}
                   >
                     <Input
-                      value={destination}
+                      value={destination || ""}
                       onChange={handleDestinationChange}
                       placeholder="Destination"
                       type="text"

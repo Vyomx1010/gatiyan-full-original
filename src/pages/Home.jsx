@@ -330,7 +330,7 @@ const Home = () => {
                     >
                       <input
                         onClick={() => setActiveField('pickup')}
-                        value={pickup}
+                        value={pickup || ""}
                         onChange={handlePickupChange}
                         className="bg-gray-300 text-gray-800 px-12 py-2 text-lg rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition-all"
                         type="text"
@@ -345,16 +345,18 @@ const Home = () => {
                               async (position) => {
                                 const { latitude, longitude } = position.coords;
                                 try {
+                                  // Use Nominatim API for reverse geocoding
                                   const response = await axios.get(
-                                    `${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`,
-                                    {
-                                      params: { address: `${latitude},${longitude}` },
-                                      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                                    }
+                                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
                                   );
-                                  setPickup(response.data.formatted_address);
+                                  console.log("Reverse geocode response:", response.data);
+                                  if (response.data && response.data.display_name) {
+                                    setPickup(response.data.display_name);
+                                  } else {
+                                    setErrorModal("No human-readable address found.");
+                                  }
                                 } catch (error) {
-                                  setErrorModal("Error fetching coordinates: " + error.message);
+                                  setErrorModal("Error fetching reverse geocode: " + error.message);
                                 } finally {
                                   setIsLoadingLocation(false);
                                 }
@@ -395,7 +397,7 @@ const Home = () => {
                     >
                       <input
                         onClick={() => setActiveField('destination')}
-                        value={destination}
+                        value={destination || ""}
                         onChange={handleDestinationChange}
                         className="bg-gray-300 text-gray-800 px-12 py-2 text-lg rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition-all"
                         type="text"
