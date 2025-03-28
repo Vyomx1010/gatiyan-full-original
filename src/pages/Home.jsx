@@ -428,6 +428,7 @@ const Home = () => {
 
               {/* Step: vehicle */}
               {currentStep === 'vehicle' && (
+                
                 <VehiclePanel
                   selectVehicle={(type) => setVehicleType(type)}
                   fare={fare}

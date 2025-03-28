@@ -100,6 +100,13 @@ const UserRideHistory = () => {
           </p>
         </div>
         <div className="flex items-center">
+        🚗
+          <p className="text-gray-700 truncate ml-1">
+            <strong>Distance:</strong> {(ride.distance / 1000).toFixed(2)} km
+          </p>
+
+        </div>
+        <div className="flex items-center">
           <FaClock className="text-blue-600 mr-2" />
           <p className="text-gray-700 truncate">
             <strong>Time:</strong> {ride.rideTime}
@@ -110,17 +117,16 @@ const UserRideHistory = () => {
           <p className="text-gray-700">
             <strong>Status:</strong>{" "}
             <span
-              className={`${
-                ride.status === "completed"
+              className={`${ride.status === "completed"
                   ? "text-green-600"
                   : ride.status === "ongoing"
-                  ? "text-blue-600"
-                  : ride.status === "cancelled"
-                  ? "text-red-600"
-                  : ride.status === "accepted"
-                  ? "text-purple-600"
-                  : "text-yellow-600"
-              }`}
+                    ? "text-blue-600"
+                    : ride.status === "cancelled"
+                      ? "text-red-600"
+                      : ride.status === "accepted"
+                        ? "text-purple-600"
+                        : "text-yellow-600"
+                }`}
             >
               {ride.status}
             </span>
@@ -208,11 +214,10 @@ const UserRideHistory = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshCooldown > 0}
-              className={`relative flex items-center px-3 py-2 rounded-full font-medium text-sm transition-all duration-300 ${
-                refreshCooldown > 0
+              className={`relative flex items-center px-3 py-2 rounded-full font-medium text-sm transition-all duration-300 ${refreshCooldown > 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
+                }`}
             >
               <FaSyncAlt className={`mr-2 ${refreshCooldown > 0 ? "" : "animate-spin-slow"}`} />
               {refreshCooldown > 0 ? `Refresh in ${refreshCooldown}s` : "Refresh"}
@@ -239,16 +244,14 @@ const UserRideHistory = () => {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center px-3 py-2 rounded-full font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
-                  activeTab === tab.key
+                className={`flex items-center px-3 py-2 rounded-full font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${activeTab === tab.key
                     ? `bg-${tab.color}-600 text-white shadow-md`
                     : `bg-${tab.color}-100 text-${tab.color}-800 hover:bg-${tab.color}-200`
-                }`}
+                  }`}
               >
                 <span
-                  className={`w-2 h-2 rounded-full mr-2 bg-${tab.color}-500 ${
-                    activeTab === tab.key ? "bg-white" : ""
-                  }`}
+                  className={`w-2 h-2 rounded-full mr-2 bg-${tab.color}-500 ${activeTab === tab.key ? "bg-white" : ""
+                    }`}
                 ></span>
                 {tab.label} (
                 {activeTab === tab.key

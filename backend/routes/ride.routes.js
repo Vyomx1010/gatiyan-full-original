@@ -30,15 +30,15 @@ router.post(
 );
 
 
-  router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
-
-
-
 router.get('/get-fare',
     query('pickup').isString().isLength({ min: 3 }).withMessage('Invalid pickup address'),
     query('destination').isString().isLength({ min: 3 }).withMessage('Invalid destination address'),
     rideController.getFare
 )
+  router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
+
+
+
 
 router.post('/confirm',
     body('rideId').isMongoId().withMessage('Invalid ride id'),
