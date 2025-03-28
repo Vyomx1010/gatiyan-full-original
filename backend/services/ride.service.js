@@ -14,7 +14,7 @@ async function getFare(pickup, destination) {
       throw new Error('Invalid response from GoMaps API');
     }
     
-    // console.log("Distance & Time Data:", distanceTime); // Debugging
+    // console.log("Distance & Time Data:", distanceTime); 
 
     const baseFare = { 
       'Swift': 30, 
@@ -58,7 +58,7 @@ async function getFare(pickup, destination) {
       );
     }
     
-    console.log("Calculated Fare:", fare); // Debugging
+    // console.log("Calculated Fare:", fare); // Debugging
     return fare;
     
   } catch (error) {
@@ -75,13 +75,17 @@ function getOtp(num) {
 }
 
 module.exports.createRide = async ({
-  user, pickup, destination, vehicleType, rideDate, rideTime, paymentType
+  user, pickup, destination, vehicleType, rideDate, rideTime, paymentType, distance, duration
 }) => {
   // Ensure all required fields are provided
   if (!user || !pickup || !destination || !vehicleType || !rideDate || !rideTime || !paymentType) {
     throw new Error('All fields are required');
   }
-
+  const distanceTime = await mapService.getDistanceTime(pickup, destination);
+    
+  if (!distanceTime || !distanceTime.distance || !distanceTime.duration) {
+    throw new Error('Invalid response from GoMaps API');
+  }
   const fare = await getFare(pickup, destination);
 
   const ride = await rideModel.create({
@@ -92,6 +96,8 @@ module.exports.createRide = async ({
     rideTime,
     paymentType, 
     otp: getOtp(6),
+    distance,
+    duration, 
     fare: fare[vehicleType]
   });
 

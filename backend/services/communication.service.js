@@ -51,9 +51,48 @@ module.exports.sendEmailOTP = async (email, otp) => {
 
   const htmlContent = createEmailTemplate(
     'Your OTP for Signup',
-    `<p>Hello,</p>
-     <p>Your GatiYan Signup OTP is: <strong>${otp}</strong></p>
-     <p>Please use this OTP to complete your registration.</p>`
+    `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GatiYan Security Verification</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f9f9f9; 
+            color: #333; 
+        }
+        .security-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        .otp-highlight {
+            background-color: #000;
+            color: white;
+            padding: 15px;
+            font-size: 26px;
+            letter-spacing: 6px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <h2>Secure Account Access</h2>
+        <p>Hello,</p>
+        <p>To protect your account, please use the following One-Time Password:</p>
+        <div class="otp-highlight">${otp}</div>
+        <p>🔒 This code is valid for 10 minutes and can be used only once.</p>
+        <p>Never share this code with anyone, including GatiYan staff.</p>
+    </div>
+</body>
+</html>`
   );
 
   const mailOptions = {

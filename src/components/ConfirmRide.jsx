@@ -340,7 +340,7 @@ const ConfirmRide = (props) => {
               <FaCar className="text-white" />
             </div>
             <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              Book Your Ride
+              Book Your Ride 
             </h3>
           </div>
           
