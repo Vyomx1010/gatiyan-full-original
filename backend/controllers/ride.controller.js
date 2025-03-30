@@ -612,20 +612,19 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
 };
 
 module.exports.getAllRidesForCaptains = async (req, res) => {
-  try {
-      // console.log("🚀 Fetching pending rides for captains...");
-
-      const rides = await rideModel.find({ status: "pending" })
-          .select("pickup destination rideDate rideTime fare status createdAt")
-          .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
-
-      // console.log("✅ Total Pending Rides Fetched:", rides.length);
-      res.status(200).json(rides);
-  } catch (err) {
-      console.error("❌ Error fetching rides:", err);
-      res.status(500).json({ message: "Internal server error" });
-  }
-};
+    try {
+        // Fetch pending rides for captains including distance and duration
+        const rides = await rideModel.find({ status: "pending" })
+            .select("pickup destination rideDate rideTime fare status distance duration createdAt")
+            .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
+  
+        res.status(200).json(rides);
+    } catch (err) {
+        console.error("❌ Error fetching rides:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
 
 module.exports.getCaptainEarnings = async (req, res) => {
   try {

@@ -95,6 +95,25 @@ const CaptainHome = () => {
     return null;
   };
 
+  // Helper function to format distance (in meters) to km.
+  const formatDistance = (distance) => {
+    if (!distance || isNaN(distance)) return "N/A";
+    return (distance / 1000).toFixed(2) + " km";
+  };
+
+  // Helper function to format duration (in seconds) to hr/min/sec.
+  const formatDuration = (duration) => {
+    if (!duration || isNaN(duration)) return "N/A";
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.floor(duration % 60);
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const remMinutes = minutes % 60;
+      return `${hours} hr ${remMinutes} min`;
+    }
+    return `${minutes} min ${seconds} sec`;
+  };
+
   // Opens Google Maps with directions based on the type.
   // For "from", we use the captain's current location as the origin.
   const handleRouteClick = (type, ride) => {
@@ -232,8 +251,9 @@ const CaptainHome = () => {
               <button
                 onClick={handleRefresh}
                 disabled={cooldown > 0 || isRefreshing}
-                className={`bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm flex items-center gap-1 ${cooldown > 0 || isRefreshing ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                className={`bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm flex items-center gap-1 ${
+                  cooldown > 0 || isRefreshing ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 {isRefreshing ? "Refreshing..." : cooldown > 0 ? `Wait ${cooldown}s` : "🔄 Refresh"}
               </button>
@@ -284,12 +304,19 @@ const CaptainHome = () => {
                         </p>
                         <p className="text-xs text-gray-500">{getTimeAgo(ride.rideDate)}</p>
                       </div>
-                      <div className="flex items-center">
-                        🚗
-                        <p className="text-gray-700 truncate ml-1">
-                          <strong>Distance:</strong> {(ride.distance / 1000).toFixed(2)} km
-                        </p>
-
+                      <div className="flex flex-col">
+                        <div className="flex items-center">
+                          🚗
+                          <p className="text-gray-700 truncate ml-1">
+                            <strong>Distance:</strong> {formatDistance(ride.distance)}
+                          </p>
+                        </div>
+                        <div className="flex items-center mt-1">
+                          ⏱️
+                          <p className="text-gray-700 truncate ml-1">
+                            <strong>Duration:</strong> {formatDuration(ride.duration)}
+                          </p>
+                        </div>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Contact</p>
