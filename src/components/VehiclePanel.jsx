@@ -1,18 +1,26 @@
 import React from 'react';
 import 'remixicon/fonts/remixicon.css';
+import swift from '../assets/swift.webp';
+import wagonR from '../assets/wagonrsuperiorwhite.webp';
+import hyundaiI20 from '../assets/i20atlaswhite.webp';
+import tiago from '../assets/tiagopristinewhite.webp';
+import swiftDzire from '../assets/Swift Dzire.webp';
+import xlg from '../assets/XL6.webp';
+import ertiga from '../assets/Ertiga.webp';
+import toyotaInnova from '../assets/Toyota Innova.webp';
 
 const VehiclePanel = (props) => {
   // Vehicle types with company names and images.
   // For vehicles without a dedicated image, a dummy placeholder image is used.
   const vehicleTypes = [
-    { type: 'Swift', label: 'Swift', description: 'Compact and affordable rides', seatCount: 4, image: 'https://via.placeholder.com/150?text=Swift' },
-    { type: 'Wagon R', label: 'Wagon R', description: 'Economical and comfortable', seatCount: 4, image: 'https://via.placeholder.com/150?text=Wagon+R' },
-    { type: 'Hyundai i20', label: 'Hyundai i20', description: 'Stylish and smooth rides', seatCount: 4, image: 'https://via.placeholder.com/150?text=Hyundai+i20' },
-    { type: 'Tiago', label: 'Tiago', description: 'Reliable and efficient', seatCount: 4, image: 'https://via.placeholder.com/150?text=Tiago' },
-    { type: 'Swift Dzire', label: 'Swift Dzire', description: 'Spacious and stylish', seatCount: 4, image: 'https://via.placeholder.com/150?text=Swift+Dzire' },
-    { type: 'XLG', label: 'XLG', description: 'Spacious family ride', seatCount: 7, image: 'https://via.placeholder.com/150?text=XLG' },
-    { type: 'Ertiga', label: 'Ertiga', description: 'Spacious and comfortable', seatCount: 7, image: 'https://via.placeholder.com/150?text=Ertiga' },
-    { type: 'Toyota Innova', label: 'Toyota Innova', description: 'Luxury and spaciousness', seatCount: 7, image: 'https://via.placeholder.com/150?text=Toyota+Innova' }
+    { type: 'Swift', label: 'Swift', description: 'Compact and affordable rides', seatCount: 4, image: swift },
+    { type: 'Wagon R', label: 'Wagon R', description: 'Economical and comfortable', seatCount: 4, image: wagonR },
+    { type: 'Hyundai i20', label: 'Hyundai i20', description: 'Stylish and smooth rides', seatCount: 4, image: hyundaiI20 },
+    { type: 'Tiago', label: 'Tiago', description: 'Reliable and efficient', seatCount: 4, image: tiago },
+    { type: 'Swift Dzire', label: 'Swift Dzire', description: 'Spacious and stylish', seatCount: 4, image: swiftDzire },
+    { type: 'XLG', label: 'XLG', description: 'Spacious family ride', seatCount: 7, image: xlg },
+    { type: 'Ertiga', label: 'Ertiga', description: 'Spacious and comfortable', seatCount: 7, image: ertiga },
+    { type: 'Toyota Innova', label: 'Toyota Innova', description: 'Luxury and spaciousness', seatCount: 7, image: toyotaInnova },
   ];
 
   return (
