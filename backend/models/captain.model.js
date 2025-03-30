@@ -1,4 +1,3 @@
-// Backend/models/captain.model.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -15,35 +14,43 @@ const captainSchema = new mongoose.Schema({
       minlength: [3, 'Lastname must be at least 3 characters long'],
     },
   },
-  dob:{
+  dob: {
     type: String,
   },
-  gender:{
+  gender: {
     type: String,
   },
-  totalearning:{
-    type: String,
+  totalEarning: {
+    type: Number,
+    default: 0,
   },
-  isonlinepaymentdone:{
+  isCashPaymentDone: {
     type: Boolean,
+    default: false,
   },
-  iscashpaymentdone:{
-    type: Boolean,
+  todayEarning: {
+    type: Number,
+    default: 0,
   },
-  todayearning:{
-    type: String,
+  monthlyEarning: {
+    type: Number,
+    default: 0,
   },
-  Monthlyearning:{
-    type: String,
+  yearlyEarning: {
+    type: Number,
+    default: 0,
   },
-  totalrides:{
-    type: String,
+  totalRides: {
+    type: Number,
+    default: 0,
   },
-  totalridescompleted:{
-    type: String,
+  totalRidesCompleted: {
+    type: Number,
+    default: 0,
   },
-  totalridescancelled:{
-    type: String,
+  totalRidesCancelled: {
+    type: Number,
+    default: 0,
   },
   email: {
     type: String,
@@ -127,7 +134,7 @@ const captainSchema = new mongoose.Schema({
   },
   lastOtpSent: {
     type: Date,
-    default: null, // Tracks the last time an OTP was sent for cooldown
+    default: null,
   },
 });
 
@@ -147,5 +154,4 @@ captainSchema.statics.hashPassword = async function (password) {
 };
 
 const captainModel = mongoose.model('captain', captainSchema);
-
 module.exports = captainModel;

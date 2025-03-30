@@ -13,40 +13,42 @@ module.exports.registerCaptain = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  // Read profilePhoto from req.body (this should be the Cloudinary URL sent from frontend)
-  const { fullname, email, password, vehicle, mobileNumber, drivingLicense, profilePhoto } = req.body;
-  
-  // Check that profilePhoto is provided
+  const {
+    fullname,
+    email,
+    password,
+    vehicle,
+    mobileNumber,
+    drivingLicense,
+    profilePhoto,
+  } = req.body;
+
   if (!profilePhoto) {
     return res.status(400).json({ message: "Profile photo is required" });
   }
 
-  // Format mobile number to ensure it starts with +91
   let formattedMobileNumber = mobileNumber.trim();
   if (!formattedMobileNumber.startsWith("+91")) {
     formattedMobileNumber = `+91${formattedMobileNumber}`;
   }
 
   try {
-    // Check if email or mobile already exists
     const existingCaptainByEmail = await captainModel.findOne({ email });
-    const existingCaptainByMobile = await captainModel.findOne({ mobileNumber: formattedMobileNumber });
+    const existingCaptainByMobile = await captainModel.findOne({
+      mobileNumber: formattedMobileNumber,
+    });
 
     let captain;
 
     if (existingCaptainByEmail || existingCaptainByMobile) {
-      // If the account is already fully verified, reject duplicate signup
-      if (existingCaptainByEmail?.emailVerified && existingCaptainByEmail?.mobileVerified) {
-        return res.status(400).json({ message: "Account with this email is already fully verified." });
-      }
-      if (existingCaptainByMobile?.emailVerified && existingCaptainByMobile?.mobileVerified) {
-        return res.status(400).json({ message: "Account with this mobile number is already fully verified." });
-      }
-
-      // Handle partial verification or mismatched data
       captain = existingCaptainByEmail || existingCaptainByMobile;
 
-      // Update unverified fields if they differ
+      if (captain.emailVerified && captain.mobileVerified) {
+        return res.status(400).json({
+          message: "Account with this email or mobile number is already fully verified.",
+        });
+      }
+
       if (!captain.emailVerified && email !== captain.email) {
         captain.email = email;
       }
@@ -54,25 +56,17 @@ module.exports.registerCaptain = async (req, res, next) => {
         captain.mobileNumber = formattedMobileNumber;
       }
 
-      // Generate new OTP
       const emailOTP = generateOTP();
       captain.emailOTP = emailOTP;
-      captain.password = await captainModel.hashPassword(password); // Update password if changed
-      captain.fullname = { firstname: fullname.firstname, lastname: fullname.lastname };
-      captain.vehicle = {
-        color: vehicle.color,
-        plate: vehicle.plate,
-        capacity: vehicle.capacity,
-        vehicleType: vehicle.vehicleType,
-      };
-      // Use the Cloudinary URL sent from frontend
+      captain.password = await captainModel.hashPassword(password);
+      captain.fullname = fullname;
+      captain.vehicle = vehicle;
       captain.profilePhoto = profilePhoto;
       captain.drivingLicense = drivingLicense;
-      captain.lastOtpSent = new Date(); // Track OTP send time
+      captain.lastOtpSent = new Date();
 
       await captain.save();
     } else {
-      // New captain signup
       const hashedPassword = await captainModel.hashPassword(password);
       const emailOTP = generateOTP();
 
@@ -85,15 +79,13 @@ module.exports.registerCaptain = async (req, res, next) => {
         plate: vehicle.plate,
         capacity: vehicle.capacity,
         vehicleType: vehicle.vehicleType,
-        profilePhoto, // Cloudinary URL from frontend
+        profilePhoto,
         mobileNumber: formattedMobileNumber,
         drivingLicense,
         emailOTP,
-        lastOtpSent: new Date(), // Track OTP send time
       });
     }
 
-    // Send OTP to the captain's email for verification
     await sendEmailOTP(captain.email, captain.emailOTP);
 
     res.status(201).json({
@@ -108,7 +100,7 @@ module.exports.registerCaptain = async (req, res, next) => {
       });
     }
     console.error("Error during registration:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -334,4 +326,20 @@ module.exports.resetPassword = async (req, res) => {
   await captain.save();
 
   res.status(200).json({ message: "Password reset successfully" });
+};
+
+
+module.exports.getCaptainEarnings = async (req, res) => {
+  try {
+    // You can either use req.params.captainId or req.captain._id if authentication middleware sets it.
+    const captainId = req.params.captainId || (req.captain && req.captain._id);
+    if (!captainId) {
+      return res.status(400).json({ message: "Captain ID not provided" });
+    }
+    const earnings = await captainService.calculateCaptainEarnings(captainId);
+    return res.status(200).json({ success: true, earnings });
+  } catch (err) {
+    console.error("Error calculating captain earnings:", err);
+    return res.status(500).json({ message: err.message });
+  }
 };

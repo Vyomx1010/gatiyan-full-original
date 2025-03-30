@@ -14,7 +14,9 @@ import axios from 'axios';
 import LocationSearchPanel from '../components/LocationSearchPanel';
 import GatiyanSections from '../components/GatiyanSections';
 import Footer from '../components/Footer';
-
+import one from '../assets/1.jpeg';
+import two from '../assets/2.jpeg';
+import three from '../assets/3.jpeg';
 function Start() {
   const navigate = useNavigate();
 
@@ -86,21 +88,21 @@ function Start() {
       name: "Harish Jain",
       role: "Business Executive",
       content: "The best cab service I've ever used. Professional drivers and luxurious cars.",
-      image: "#",
+      image: one,
       rating: 5
     },
     {
       name: "Meena Sharma",
       role: "Frequent Traveler",
       content: "Reliable and comfortable. My go-to choice for airport transfers.",
-      image: "#",
+      image: three,
       rating: 5
     },
     {
       name: "Rahul Singh",
       role: "Corporate Client",
       content: "Exceptional service and attention to detail. Highly recommended!",
-      image: "#",
+      image: two,
       rating: 5
     }
   ];

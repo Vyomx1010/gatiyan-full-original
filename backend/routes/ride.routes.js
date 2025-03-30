@@ -62,7 +62,10 @@ router.get('/:rideId', authMiddleware.authUser, rideController.getRideById);
 
 // Backend/routes/ride.routes.js
 router.get('/user/history', authMiddleware.authUser, rideController.getUserRideHistory);
-router.get('/captain/history', authMiddleware.authCaptain, rideController.getCaptainRideHistory);
 
+// Route to get captain's ride history
+router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRidesHistory);
+// Route to confirm cash payment for a ride
+router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 
 module.exports = router;

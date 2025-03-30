@@ -15,7 +15,7 @@ const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-app.use(cors());
+
 // Connect to MongoDB
 connectToDb();
 app.use(cookieParser());

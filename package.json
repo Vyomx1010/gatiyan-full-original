@@ -25,6 +25,7 @@
     "pigeon-maps": "^0.22.1",
     "pigeon-marker": "^0.3.4",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.9",
     "react-datepicker": "^8.1.0",
     "react-dom": "^18.3.1",
     "react-flatpickr": "^3.10.13",
