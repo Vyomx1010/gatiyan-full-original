@@ -15,10 +15,15 @@ const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-app.use(cors({
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
-}));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({ message: 'OK' });
+  }
+  next();
+});
 // Connect to MongoDB
 connectToDb();
 app.use(cookieParser());

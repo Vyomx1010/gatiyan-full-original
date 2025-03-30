@@ -44,6 +44,7 @@ module.exports.authUser = async (req, res, next) => {
   }
 };
 
+
 module.exports.authCaptain = async (req, res, next) => {
   try {
     const token = getTokenFromRequest(req);
