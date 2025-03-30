@@ -157,7 +157,13 @@ module.exports.endRide = async ({ rideId, captain }) => {
   if (ride.status !== 'ongoing') {
     throw new Error('Ride not ongoing');
   }
-  await rideModel.findOneAndUpdate({ _id: rideId }, { status: 'completed' });
+  await rideModel.findOneAndUpdate(
+    { _id: rideId },
+    { 
+      status: 'completed',
+      completedAt: new Date() // Set completion timestamp
+    }
+  );
   return ride;
 };
 

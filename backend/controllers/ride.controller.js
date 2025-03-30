@@ -673,157 +673,32 @@ module.exports.getCaptainEarnings = async (req, res) => {
 
 // GET: Captain Ride History
 // This endpoint expects that the auth middleware sets req.captain.
-module.exports.getCaptainRidesHistory = async (req, res) => {
-  try {
-    // Log for debugging
-    console.log('Auth Captain:', req.captain);
-    console.log('Querying rides for captain ID:', req.captain._id);
-    const rides = await Ride.find({ captain: req.captain._id }).sort({ createdAt: -1 });
-    console.log(`Found ${rides.length} rides for captain ${req.captain._id}`);
-    res.status(200).json(rides);
-  } catch (err) {
-    console.error('Error fetching captain ride history:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+exports.getCaptainRidesHistory = async (req, res) => {
+    try {
+      const rides = await rideModel
+        .find({ captain: req.user._id }) // req.user from authMiddleware
+        .populate('user', 'fullname email mobileNumber')
+        .populate('captain', 'fullname email');
+      res.status(200).json({ success: true, rides });
+    } catch (err) {
+      console.error('Error fetching captain rides:', err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  };
 
 // POST: Confirm Cash Payment for a Ride
-module.exports.confirmCashPayment = async (req, res) => {
-  try {
-    const { rideId } = req.params;
-    // Find the ride and populate its user and captain details
-    const ride = await Ride.findById(rideId).populate('user').populate('captain');
-    if (!ride) {
-      console.error('Ride not found for id:', rideId);
-      return res.status(404).json({ message: 'Ride not found' });
+exports.confirmCashPayment = async (req, res) => {
+    try {
+      const ride = await rideModel.findOneAndUpdate(
+        { _id: req.params.rideId, captain: req.user._id },
+        { isPaymentDone: true },
+        { new: true }
+      );
+      if (!ride) {
+        return res.status(404).json({ success: false, message: 'Ride not found' });
+      }
+      res.status(200).json({ success: true, ride });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
-    if (!ride.user) {
-      console.error('Ride has no user populated:', rideId);
-      return res.status(404).json({ message: 'User not found for this ride' });
-    }
-    if (ride.paymentType !== 'cash') {
-      return res.status(400).json({ message: 'This ride is not a cash payment type' });
-    }
-    if (ride.isPaymentDone) {
-      return res.status(400).json({ message: 'Cash payment already confirmed for this ride' });
-    }
-    
-    // Update ride: mark payment as done
-    ride.isPaymentDone = true;
-    await ride.save();
-    
-    // Update captain's record: mark cash payment as done (ensure your captain model has a field "isCashPaymentDone")
-    await Captain.findByIdAndUpdate(ride.captain._id, { isCashPaymentDone: true });
-    
-    // Prepare the email template with dynamic values from the ride object
-    const emailTemplate = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ride Payment Confirmation</title>
-    <style>
-        /* Reset styles for email clients */
-        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; min-width: 100% !important; width: 100% !important; }
-        .email-container { max-width: 600px; margin: 0 auto; background-color: white; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { background-color: #000000; color: white; padding: 25px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-        .content { padding: 30px; }
-        .details-grid { width: 100%; border-collapse: separate; border-spacing: 10px; }
-        .detail-item { background: #f8f9fa; border-radius: 8px; padding: 15px; }
-        .detail-label { color: #666; font-size: 14px; margin-bottom: 5px; }
-        .detail-value { color: #000000; font-size: 16px; font-weight: 500; }
-        .payment-status { text-align: center; padding: 20px; margin-top: 20px; border-radius: 8px; background: #f8f9fa; }
-        .status-label { font-size: 20px; font-weight: bold; }
-        .status-done { color: #000000; }
-        .status-pending { color: #666666; }
-        .footer { background: #f4f4f4; padding: 20px; text-align: center; color: #666; font-size: 14px; }
-        @media screen and (max-width: 600px) { .email-container { width: 100% !important; min-width: 100% !important; } .details-grid { display: block; width: 100%; } .detail-item { margin-bottom: 10px; } }
-    </style>
-</head>
-<body>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-        <tr>
-            <td align="center" style="padding: 20px 0;">
-                <table class="email-container" width="600" cellspacing="0" cellpadding="0" border="0">
-                    <tr>
-                        <td class="header" align="center">
-                            <h1>Ride Confirmation</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="content">
-                            <table class="details-grid" cellspacing="10" cellpadding="0" border="0">
-                                <tr>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Passenger Name</div>
-                                        <div class="detail-value">${ride.user.fullname.firstname} ${ride.user.fullname.lastname}</div>
-                                    </td>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Email</div>
-                                        <div class="detail-value">${ride.user.email}</div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Pickup Location</div>
-                                        <div class="detail-value">${ride.pickup}</div>
-                                    </td>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Destination</div>
-                                        <div class="detail-value">${ride.destination}</div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Date & Time</div>
-                                        <div class="detail-value">${ride.rideDate} at ${ride.rideTime}</div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Fare Amount</div>
-                                        <div class="detail-value">₹${ride.fare}</div>
-                                    </td>
-                                    <td class="detail-item" width="50%">
-                                        <div class="detail-label">Payment Method</div>
-                                        <div class="detail-value">${ride.paymentType}</div>
-                                    </td>
-                                </tr>
-                            </table>
-                            <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                                <tr>
-                                    <td class="payment-status">
-                                        <div class="status-label status-done">
-                                            Payment Status: Done ✅
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="footer">
-                            Thank you for choosing our service!
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>`;
-    
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
-    // Send email notifications
-    await sendEmail(ride.user.email, 'Ride Payment Confirmation', emailTemplate);
-    await sendEmail(ride.captain.email, 'Ride Payment Confirmation', emailTemplate);
-    await sendEmail(adminEmail, 'Ride Payment Confirmation', emailTemplate);
-    
-    res.json({ message: 'Payment confirmed and emails sent.' });
-  } catch (error) {
-    console.error('Error confirming cash payment:', error);
-    res.status(500).json({ message: error.message });
-  }
-};
+  };

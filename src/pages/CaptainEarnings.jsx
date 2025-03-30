@@ -3,47 +3,66 @@ import axios from 'axios';
 import Captainnavbar from '../components/Captainnavbar';
 
 const CaptainEarnings = () => {
-  const [earnings, setEarnings] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [earnings, setEarnings] = useState({
+    totalEarning: 0,
+    todayEarning: 0,
+    monthlyEarning: 0,
+    totalCompletedRides: 0,
+  });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
 
   useEffect(() => {
     const fetchEarnings = async () => {
-      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Please log in to view earnings');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${baseUrl}/captains/earnings`, {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/captains/earnings`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setEarnings(res.data.earnings);
-      } catch (err) {
-        console.error('Error fetching earnings:', err);
-        setError(err.response?.data?.message || 'Failed to fetch earnings');
+        console.log('Earnings data:', response.data); // Debug
+        setEarnings(response.data);
+      } catch (error) {
+        console.error('Error fetching earnings:', error);
+        setError('Failed to load earnings');
       } finally {
         setLoading(false);
       }
     };
-
     fetchEarnings();
-  }, [baseUrl]);
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <>
       <Captainnavbar />
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">My Earnings</h1>
-        {loading && <p>Loading earnings...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        {earnings && (
-          <div className="bg-white shadow rounded p-4">
-            <p className="text-lg"><strong>Total Earnings:</strong> ₹{earnings.totalEarning}</p>
-            <p className="text-lg"><strong>Today's Earnings:</strong> ₹{earnings.todayEarning}</p>
-            <p className="text-lg"><strong>Monthly Earnings:</strong> ₹{earnings.monthlyEarning}</p>
-            <p className="text-lg"><strong>Yearly Earnings:</strong> ₹{earnings.yearlyEarning}</p>
-            <p className="text-lg"><strong>Total Completed Rides:</strong> {earnings.totalCompletedRides}</p>
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-6">Your Earnings</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-xl">Today’s Earnings</h2>
+            <p className="text-2xl font-semibold">₹{earnings.todayEarning}</p>
           </div>
-        )}
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-xl">Monthly Earnings</h2>
+            <p className="text-2xl font-semibold">₹{earnings.monthlyEarning}</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-xl">Total Earnings</h2>
+            <p className="text-2xl font-semibold">₹{earnings.totalEarning}</p>
+          </div>
+        </div>
+        <div className="mt-4 bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl">Total Completed Rides</h2>
+          <p className="text-2xl font-semibold">{earnings.totalCompletedRides}</p>
+        </div>
       </div>
     </>
   );

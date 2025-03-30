@@ -55,7 +55,6 @@ module.exports.createCaptain = async ({
 };
 
 async function calculateCaptainEarnings(captainId) {
-  // Find completed rides for the captain
   const rides = await rideModel.find({
     captain: captainId,
     status: "completed"
@@ -69,31 +68,26 @@ async function calculateCaptainEarnings(captainId) {
   let totalCompletedRides = 0;
 
   rides.forEach(ride => {
-    // Only add fare if:
-    // - Payment type is online OR
-    // - Payment type is cash and isPaymentDone is true
     if (ride.paymentType === "online" || (ride.paymentType === "cash" && ride.isPaymentDone)) {
       totalEarning += ride.fare;
       totalCompletedRides += 1;
       
-      // Use ride.completedAt if available, else updatedAt/createdAt
       const rideDate = new Date(ride.completedAt || ride.updatedAt || ride.createdAt);
+      console.log(`Ride ${ride._id}: Date=${rideDate}, Fare=${ride.fare}, Payment=${ride.paymentType}, Done=${ride.isPaymentDone}`);
 
-      // Check if ride date is today
       if (rideDate.toDateString() === now.toDateString()) {
         todayEarning += ride.fare;
       }
-      // Check if ride date is within current month and year
       if (rideDate.getMonth() === now.getMonth() && rideDate.getFullYear() === now.getFullYear()) {
         monthlyEarning += ride.fare;
       }
-      // Check if ride date is within current year
       if (rideDate.getFullYear() === now.getFullYear()) {
         yearlyEarning += ride.fare;
       }
     }
   });
 
+  console.log(`Earnings for ${captainId}: Total=${totalEarning}, Today=${todayEarning}, Monthly=${monthlyEarning}`);
   return { totalEarning, todayEarning, monthlyEarning, yearlyEarning, totalCompletedRides };
 }
 
