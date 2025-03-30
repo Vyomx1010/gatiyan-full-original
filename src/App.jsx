@@ -2,16 +2,18 @@ import { Route, Routes } from 'react-router-dom';
 import Start from './pages/Start';
 import UserLogin from './pages/UserLogin';
 import UserSignup from './pages/UserSignup';
-import Captainlogin from './pages/Captainlogin';
-import CaptainSignup from './pages/CaptainSignup';
 import UserRideHistory from './pages/UserRideHistory';
 import Home from './pages/Home';
 import UserProtectWrapper from './pages/UserProtectWrapper';
 import UserLogout from './pages/UserLogout';
+import Captainlogin from './pages/Captainlogin';
+import CaptainSignup from './pages/CaptainSignup';
 import CaptainHome from './pages/CaptainHome';
 import CaptainProtectWrapper from './pages/CaptainProtectWrapper';
 import CaptainLogout from './pages/CaptainLogout';
 import CaptainRiding from './pages/CaptainRiding';
+import CaptainEarnings from './pages/CaptainEarnings';
+import CaptainRidesHistory from './pages/CaptainRidesHistory'
 import VerifyEmailOTP from './pages/VerifyEmailOTP';
 import NotFoundPage from './pages/NotFoundPage';
 import ForgotPassword from './pages/ForgotPassword';
@@ -93,6 +95,22 @@ const App = () => {
           element={
             <CaptainProtectWrapper>
               <CaptainRiding />
+            </CaptainProtectWrapper>
+          }
+        />
+        <Route
+          path="/myearings"
+          element={
+            <CaptainProtectWrapper>
+              <CaptainEarnings />
+            </CaptainProtectWrapper>
+          }
+        />
+        <Route
+          path="/captainrideshistory"
+          element={
+            <CaptainProtectWrapper>
+              <CaptainRidesHistory />
             </CaptainProtectWrapper>
           }
         />

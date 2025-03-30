@@ -335,3 +335,19 @@ module.exports.resetPassword = async (req, res) => {
 
   res.status(200).json({ message: "Password reset successfully" });
 };
+
+
+module.exports.getCaptainEarnings = async (req, res) => {
+  try {
+    // You can either use req.params.captainId or req.captain._id if authentication middleware sets it.
+    const captainId = req.params.captainId || (req.captain && req.captain._id);
+    if (!captainId) {
+      return res.status(400).json({ message: "Captain ID not provided" });
+    }
+    const earnings = await captainService.calculateCaptainEarnings(captainId);
+    return res.status(200).json({ success: true, earnings });
+  } catch (err) {
+    console.error("Error calculating captain earnings:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};

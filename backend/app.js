@@ -15,12 +15,7 @@ const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-app.use(cors({
-  origin: allowedOrigin,
-  credentials: true, // if you need to send cookies or authentication headers
-}));
 // Connect to MongoDB
 connectToDb();
 app.use(cookieParser());

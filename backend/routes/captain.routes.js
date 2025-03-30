@@ -68,6 +68,7 @@ router.get('/profile', (req, res, next) => {
 router.get("/logout", authMiddleware.authCaptain, captainController.logoutCaptain);
 
 // router.get("/dashboard/:captainId", captainController.getCaptainDashboard);
+router.get('/earnings', authMiddleware.authCaptain, captainController.getCaptainEarnings);
 
 router.post(
   "/resend-otp",
