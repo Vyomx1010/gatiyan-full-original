@@ -7,7 +7,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 router.post(
   "/register",
-  upload.single("profilePhoto"), // Use the custom file validation
   [
     body("email").isEmail().withMessage("Invalid Email"),
     body("fullname.firstname")
@@ -25,16 +24,19 @@ router.post(
     body("vehicle.capacity")
       .isInt({ min: 1 })
       .withMessage("Capacity must be at least 1"),
-      body("vehicle.vehicleType")
+    body("vehicle.vehicleType")
       .isString()
       .isIn(["Swift", "Wagon R", "Hyundai i20", "Tiago", "Swift Dzire", "XLG", "Ertiga", "Toyota Innova"])
-      .withMessage("Invalid vehicle type"),    
+      .withMessage("Invalid vehicle type"),
     body("mobileNumber")
       .isLength({ min: 10 })
       .withMessage("Mobile number must be at least 10 characters long"),
     body("drivingLicense")
       .isLength({ min: 5 })
       .withMessage("Driving license must be at least 5 characters long"),
+    body("profilePhoto")
+      .isURL()
+      .withMessage("Profile photo must be a valid URL"),
   ],
   captainController.registerCaptain
 );

@@ -138,15 +138,11 @@ const CaptainSignup = () => {
       return;
     }
     if (!validateDrivingLicense(formData.drivingLicense)) {
-      toast.error(
-        "Invalid driving license format. Expected format: XX-XX-XXXX-XXXXXXX (e.g., KA-04-2023-0009646)"
-      );
+      toast.error("Invalid driving license format...");
       return;
     }
     if (!validateVehiclePlate(formData.vehicle.plate)) {
-      toast.error(
-        "Invalid vehicle plate format. Expected format: XX-XX-XX-XXXX (e.g., KA-01-AB-1234)"
-      );
+      toast.error("Invalid vehicle plate format...");
       return;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -154,24 +150,31 @@ const CaptainSignup = () => {
       return;
     }
     setIsLoading(true);
-    const submitFormData = new FormData();
-    submitFormData.append("fullname[firstname]", formData.firstName);
-    submitFormData.append("fullname[lastname]", formData.lastName);
-    submitFormData.append("email", formData.email);
-    submitFormData.append("password", formData.password);
-    submitFormData.append("mobileNumber", formData.mobileNumber);
-    submitFormData.append("drivingLicense", formData.drivingLicense);
-    submitFormData.append("vehicle[color]", formData.vehicle.color);
-    submitFormData.append("vehicle[plate]", formData.vehicle.plate);
-    submitFormData.append("vehicle[capacity]", formData.vehicle.capacity);
-    submitFormData.append("vehicle[vehicleType]", formData.vehicle.type);
-    // Send profilePhoto as a URL string
-    submitFormData.append("profilePhoto", profilePhoto);
+  
+    // Send nested JSON instead of FormData with bracket notation
+    const payload = {
+      fullname: {
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+      },
+      email: formData.email,
+      password: formData.password,
+      mobileNumber: formData.mobileNumber,
+      drivingLicense: formData.drivingLicense,
+      vehicle: {
+        color: formData.vehicle.color,
+        plate: formData.vehicle.plate,
+        capacity: formData.vehicle.capacity,
+        vehicleType: formData.vehicle.type,
+      },
+      profilePhoto, // Cloudinary URL
+    };
+  
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/captains/register`,
-        submitFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        payload, // Send as JSON
+        { headers: { "Content-Type": "application/json" } } // Change to JSON
       );
       if (response.status === 201) {
         toast.success("OTP sent to your email and mobile number!");
@@ -183,6 +186,7 @@ const CaptainSignup = () => {
       toast.error(
         error.response?.data?.message || "Signup failed. Please try again."
       );
+      console.error("Signup Error:", error.response?.data || error);
     } finally {
       setIsLoading(false);
       setTermsAccepted(false);
