@@ -676,7 +676,7 @@ module.exports.getCaptainEarnings = async (req, res) => {
 exports.getCaptainRidesHistory = async (req, res) => {
     try {
       const rides = await rideModel
-        .find({ captain: req.user._id }) // req.user from authMiddleware
+        .find({ captain: req.ObjectId })
         .populate('user', 'fullname email mobileNumber')
         .populate('captain', 'fullname email');
       res.status(200).json({ success: true, rides });

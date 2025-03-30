@@ -19,7 +19,7 @@ const Captainlogin = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+  
     const captainData = {
       email: email,
       password: password,
@@ -33,9 +33,11 @@ const Captainlogin = () => {
   
       if (response.status === 200) {
         const data = response.data;
+        console.log("API response data:", data); // Log the full response
         setCaptain(data.captain);
         localStorage.setItem('token', data.token);
-        // Set the userType to captain so that Navbar renders the captain menu.
+        const storedToken = localStorage.getItem('token'); // Retrieve the token
+        console.log("token : ", storedToken); // Log the stored token
         localStorage.setItem('userType', 'captain');
         toast.success('Login successful! Redirecting...');
         setTimeout(() => {

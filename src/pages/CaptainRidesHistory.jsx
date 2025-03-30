@@ -13,13 +13,14 @@ const CaptainRidesHistory = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Please log in to view ride history');
+        console.error('No token found, redirecting to login',token);
         setLoading(false);
         return;
       }
 
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/captain-history`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setRides(response.data.rides || []);
       } catch (error) {

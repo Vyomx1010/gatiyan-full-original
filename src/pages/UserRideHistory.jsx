@@ -32,7 +32,6 @@ const UserRideHistory = () => {
       const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/user/history`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      console.log("Fetched Rides:", res.data);
       setRides(Array.isArray(res.data) ? res.data : []);
       setError(null);
     } catch (err) {

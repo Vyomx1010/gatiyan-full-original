@@ -48,15 +48,19 @@ module.exports.authCaptain = async (req, res, next) => {
   try {
     const token = getTokenFromRequest(req);
     if (!token || typeof token !== 'string' || token.trim() === '') {
+      console.log("token: ",token);
+      console.log("req.headers: ",req.headers);
       return res.status(401).json({ message: 'Unauthorized: No valid token provided' });
     }
     
     const blacklisted = await blackListTokenModel.findOne({ token });
     if (blacklisted) {
+      console.log("token: ",token);
       return res.status(401).json({ message: 'Unauthorized: Token is blacklisted' });
     }
     
     if (token.split('.').length !== 3) {
+      console.log("split token: ",token);
       return res.status(401).json({ message: 'Unauthorized: Invalid token format' });
     }
     
