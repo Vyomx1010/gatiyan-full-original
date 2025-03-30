@@ -17,6 +17,7 @@
     "gsap": "^3.12.5",
     "inferno": "^9.0.3",
     "inferno-component": "^7.4.11",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",
     "modulename": "^0.0.4",
     "nodemailer": "^6.10.0",

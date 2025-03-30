@@ -33,16 +33,13 @@ const Captainlogin = () => {
   
       if (response.status === 200) {
         const data = response.data;
-        console.log("API response data:", data); // Log the full response
+        console.log('Token received:', data.token); // Add this
         setCaptain(data.captain);
         localStorage.setItem('token', data.token);
-        const storedToken = localStorage.getItem('token'); // Retrieve the token
-        console.log("token : ", storedToken); // Log the stored token
+        console.log('Token stored in localStorage:', localStorage.getItem('token')); // Add this
         localStorage.setItem('userType', 'captain');
         toast.success('Login successful! Redirecting...');
-        setTimeout(() => {
-          navigate('/captain-home');
-        }, 2000);
+        setTimeout(() => navigate('/captain-home'), 2000);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
