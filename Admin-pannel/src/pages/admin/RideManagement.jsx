@@ -165,13 +165,13 @@ const RideManagement = () => {
             />
           </div>
 
-          {/* Status Tabs */}
-          <div className="flex gap-4 mb-6">
+          {/* Status Tabs - Updated for Mobile Responsiveness */}
+          <div className="flex gap-4 mb-6 overflow-x-auto">
             {statusTabs.map((status) => (
               <button
                 key={status}
                 onClick={() => setRideFilter(status)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                className={`px-2 py-1 sm:px-4 sm:py-2 rounded-full text-sm font-medium transition-colors ${
                   rideFilter === status
                     ? "bg-indigo-600 text-white"
                     : "bg-gray-200 text-gray-800 hover:bg-gray-300"

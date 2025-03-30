@@ -29,7 +29,6 @@ const CaptainRidesHistory = () => {
         setLoading(false);
       }
     };
-    
     fetchRides();
   }, [baseUrl]);
   
@@ -61,7 +60,8 @@ const CaptainRidesHistory = () => {
     } catch (err) {
       alert(err.response?.data?.message || 'Error confirming payment');
     } finally {
-      // Enforce 2-second cooldown before allowing another confirmation\n      setTimeout(() => setConfirmLoading(false), 2000);
+      // Enforce a 2-second cooldown on the confirmation button
+      setTimeout(() => setConfirmLoading(false), 2000);
     }
   };
   
@@ -80,11 +80,12 @@ const CaptainRidesHistory = () => {
               <div key={ride._id} className="bg-white p-4 rounded shadow">
                 <p><strong>From:</strong> {ride.pickup}</p>
                 <p><strong>To:</strong> {ride.destination}</p>
-                <p><strong>Date:</strong> {new Date(ride.rideDate).toLocaleDateString()} • {ride.rideTime}</p>
+                <p>
+                  <strong>Date:</strong> {new Date(ride.rideDate).toLocaleDateString()} • {ride.rideTime}
+                </p>
                 <p><strong>Fare:</strong> ₹{ride.fare}</p>
                 <p><strong>Payment Type:</strong> {ride.paymentType}</p>
                 <p><strong>Payment Done:</strong> {ride.isPaymentDone ? 'Yes' : 'No'}</p>
-                {/* If cash payment and not confirmed, show confirm button */} 
                 {ride.paymentType === 'cash' && !ride.isPaymentDone && (
                   <Button variant="primary" onClick={() => handleConfirmClick(ride)}>
                     Confirm Payment

@@ -62,10 +62,16 @@ module.exports.authCaptain = async (req, res, next) => {
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const captain = await captainModel.findById(decoded._id);
+    
     if (!captain) {
       return res.status(401).json({ message: 'Captain not found' });
     }
+    
     req.captain = captain;
+    // Log after assignment to verify correct value
+    console.log('Auth Captain:', req.captain);
+    console.log('Querying rides for captain ID:', req.captain._id);
+    
     next();
   } catch (err) {
     console.error("Error in authCaptain middleware:", err);
