@@ -63,7 +63,6 @@ module.exports.verify2SV = async (req, res) => {
   }
 };
 
-// ... (other functions remain unchanged: getDashboardData, blockUser, unblockUser)
 
 module.exports.getDashboardData = async (req, res) => {
   try {

@@ -19,7 +19,7 @@ const Captainlogin = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+  
     const captainData = {
       email: email,
       password: password,
@@ -33,14 +33,13 @@ const Captainlogin = () => {
   
       if (response.status === 200) {
         const data = response.data;
+        console.log('Token received:', data.token); // Add this
         setCaptain(data.captain);
         localStorage.setItem('token', data.token);
-        // Set the userType to captain so that Navbar renders the captain menu.
+        console.log('Token stored in localStorage:', localStorage.getItem('token')); // Add this
         localStorage.setItem('userType', 'captain');
         toast.success('Login successful! Redirecting...');
-        setTimeout(() => {
-          navigate('/captain-home');
-        }, 2000);
+        setTimeout(() => navigate('/captain-home'), 2000);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Login failed. Please try again.';
@@ -53,7 +52,7 @@ const Captainlogin = () => {
           navigate('/verify-email-otp', {
             state: { email: responseEmail || email, mobileNumber, userType: 'captain' },
           });
-        }, 2000);
+        }, 20);
       }
     } finally {
       setLoading(false);

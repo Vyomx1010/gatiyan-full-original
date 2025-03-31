@@ -35,8 +35,10 @@ router.get('/get-fare',
     query('destination').isString().isLength({ min: 3 }).withMessage('Invalid destination address'),
     rideController.getFare
 )
-  router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
-
+  
+router.get("/pending", authMiddleware.authCaptain, rideController.getPendingRides);
+router.get("/accepted", authMiddleware.authCaptain, rideController.getAllAcceptedRides);
+router.get("/completed", authMiddleware.authCaptain, rideController.getCompletedRidesForCaptain);
 
 
 
@@ -57,15 +59,13 @@ router.post('/end-ride',
     body('rideId').isMongoId().withMessage('Invalid ride id'),
     rideController.endRide
 )
+// New PATCH endpoint for marking cash payment done
+router.patch("/:rideId/cash-payment-done", authMiddleware.authCaptain, rideController.markCashPaymentDone);
 
 router.get('/:rideId', authMiddleware.authUser, rideController.getRideById);
 
 // Backend/routes/ride.routes.js
 router.get('/user/history', authMiddleware.authUser, rideController.getUserRideHistory);
 
-// Route to get captain's ride history
-router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRidesHistory);
-// Route to confirm cash payment for a ride
-router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 
 module.exports = router;

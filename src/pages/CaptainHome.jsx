@@ -8,6 +8,7 @@ const CaptainHome = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // Added loader state
   const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
   // Get current location once on mount
@@ -40,13 +41,14 @@ const CaptainHome = () => {
 
   // Fetch rides from backend
   const fetchRides = async () => {
+    setIsLoading(true); // Start loader
     const token = localStorage.getItem("token");
     if (!token) {
       console.error("❌ No token found, redirecting to login");
       return;
     }
     try {
-      const res = await axios.get(`${baseUrl}/rides/captain/all`, {
+      const res = await axios.get(`${baseUrl}/rides/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(res.data)) {
@@ -63,7 +65,8 @@ const CaptainHome = () => {
       console.error("Error fetching rides:", error);
       setRides([]);
     }
-  };
+    setIsLoading(false); // Stop loader
+  };  
 
   // Initial fetch on mount
   useEffect(() => {
@@ -80,19 +83,6 @@ const CaptainHome = () => {
     if (diffDays < 30) return `${diffDays} din Baad`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} mahine Baad`;
     return `${Math.floor(diffDays / 365)} saal Baad`;
-  };
-
-  const computeDistance = (lat1, lng1, lat2, lng2) => {
-    if (window.google?.maps?.geometry) {
-      const p1 = new window.google.maps.LatLng(lat1, lng1);
-      const p2 = new window.google.maps.LatLng(lat2, lng2);
-      const distanceInMeters = window.google.maps.geometry.spherical.computeDistanceBetween(
-        p1,
-        p2
-      );
-      return (distanceInMeters / 1000).toFixed(2);
-    }
-    return null;
   };
 
   // Helper function to format distance (in meters) to km.
@@ -255,12 +245,20 @@ const CaptainHome = () => {
                   cooldown > 0 || isRefreshing ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {isRefreshing ? "Refreshing..." : cooldown > 0 ? `Wait ${cooldown}s` : "🔄 Refresh"}
+                {isRefreshing
+                  ? "Refreshing..."
+                  : cooldown > 0
+                  ? `Wait ${cooldown}s`
+                  : "🔄 Refresh"}
               </button>
             </div>
           </div>
 
-          {filteredRides.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center min-h-[300px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-black"></div>
+            </div>
+          ) : filteredRides.length === 0 ? (
             <div className="text-center py-8 bg-white rounded-lg shadow-sm">
               <p className="text-gray-500 text-sm">No rides available</p>
             </div>

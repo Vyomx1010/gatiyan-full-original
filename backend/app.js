@@ -10,12 +10,20 @@ const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const contactRoutes = require('./routes/contact.routes');
 const cookieParser = require('cookie-parser');
-const cors = require('cors'); 
+// const cors = require('cors'); 
 const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)
 app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
-
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({ message: 'OK' });
+  }
+  next();
+});
 // Connect to MongoDB
 connectToDb();
 app.use(cookieParser());
