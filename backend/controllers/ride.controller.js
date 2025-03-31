@@ -6,8 +6,7 @@ const userModel = require('../models/user.model');
 const dotenv = require('dotenv');
 const { sendEmail } = require('../services/communication.service');
 const captainModel = require('../models/captain.model');
-const paymentService = require('../services/payment.service'); // Added missing import
-const blackListTokenModel = require('../models/blackListToken.model'); 
+const paymentService = require('../services/payment.service');
 dotenv.config();
 
 module.exports.createRide = async (req, res) => {

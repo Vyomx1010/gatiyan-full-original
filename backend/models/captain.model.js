@@ -24,10 +24,6 @@ const captainSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  isCashPaymentDone: {
-    type: Boolean,
-    default: false,
-  },
   todayEarning: {
     type: Number,
     default: 0,
