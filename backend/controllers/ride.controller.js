@@ -609,14 +609,6 @@ module.exports.getUserRideHistory = async (req, res) => {
 };
 
 
-module.exports.getCaptainRideHistory = async (req, res) => {
-  try {
-      const rides = await rideModel.find({ captain: req.captain._id }).sort({ createdAt: -1 });
-      res.status(200).json(rides);
-  } catch (err) {
-      res.status(500).json({ message: err.message });
-  }
-};
 
 module.exports.getRideById = async (req, res) => {
   try {
@@ -650,96 +642,8 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
   }
 };
 
-module.exports.getAllRidesForCaptains = async (req, res) => {
-    try {
-        // Fetch pending rides for captains including distance and duration
-        const { captainId } = req.params;
-        const rides = await rideModel.find({ 
-          captain: captainId, 
-          status: "accepted" 
-        }).select("pickup destination rideDate rideTime fare status distance duration createdAt")
-            .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
-  
-        res.status(200).json(rides);
-    } catch (err) {
-        console.error("❌ Error fetching rides:", err);
-        res.status(500).json({ message: "Internal server error" });
-    }
-  };
-  
-
-module.exports.getCaptainEarnings = async (req, res) => {
-  try {
-    const { captainId } = req.params;
-
-    // Fetch all completed rides for the captain
-    const rides = await rideModel.find({ 
-      captain: captainId, 
-      status: "completed" 
-    });
-
-    // Define time boundaries
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    // Calculate earnings
-    const todayEarnings = rides
-      .filter(ride => new Date(ride.updatedAt) >= today)
-      .reduce((sum, ride) => sum + (ride.fare || 0), 0);
-
-    const monthlyEarnings = rides
-      .filter(ride => new Date(ride.updatedAt) >= monthStart)
-      .reduce((sum, ride) => sum + (ride.fare || 0), 0);
-
-    const totalEarnings = rides
-      .reduce((sum, ride) => sum + (ride.fare || 0), 0);
-
-    res.status(200).json({
-      success: true,
-      earnings: {
-        today: todayEarnings,
-        monthly: monthlyEarnings,
-        total: totalEarnings,
-        completedRides: rides.length
-      }
-    });
-  } catch (err) {
-    console.error("Error fetching captain earnings:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
 
 
-// GET: Captain Ride History
-// This endpoint expects that the auth middleware sets req.captain.
-exports.getCaptainRidesHistory = async (req, res) => {
-  try {
-    // Fetch pending rides for captains including distance and duration
-    const rides = await rideModel.find({ status: "accepted" })
-        .select("pickup destination rideDate rideTime fare status distance duration createdAt")
-        .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
 
-    res.status(200).json(rides);
-} catch (err) {
-    console.error("❌ Error fetching rides:", err);
-    res.status(500).json({ message: "Internal server error" });
-}
-  };
 
-// POST: Confirm Cash Payment for a Ride
-exports.confirmCashPayment = async (req, res) => {
-    try {
-      const ride = await rideModel.findOneAndUpdate(
-        { _id: req.params.rideId, captain: req.user._id },
-        { isPaymentDone: true },
-        { new: true }
-      );
-      if (!ride) {
-        return res.status(404).json({ success: false, message: 'Ride not found' });
-      }
-      res.status(200).json({ success: true, ride });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  };
+

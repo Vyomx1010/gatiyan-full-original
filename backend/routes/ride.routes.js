@@ -38,12 +38,6 @@ router.get('/get-fare',
   
 router.get("/pending", authMiddleware.authCaptain, rideController.getPendingRides);
 router.get("/accepted", authMiddleware.authCaptain, rideController.getAllAcceptedRides);
-
-router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
-// Route to get captain's ride history
-router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRideHistory);
-// Route to confirm cash payment for a ride
-router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 router.get("/completed", authMiddleware.authCaptain, rideController.getCompletedRidesForCaptain);
 
 
