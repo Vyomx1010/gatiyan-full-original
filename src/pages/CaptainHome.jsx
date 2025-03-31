@@ -81,18 +81,7 @@ const CaptainHome = () => {
     return `${Math.floor(diffDays / 365)} saal Baad`;
   };
 
-  const computeDistance = (lat1, lng1, lat2, lng2) => {
-    if (window.google?.maps?.geometry) {
-      const p1 = new window.google.maps.LatLng(lat1, lng1);
-      const p2 = new window.google.maps.LatLng(lat2, lng2);
-      const distanceInMeters = window.google.maps.geometry.spherical.computeDistanceBetween(
-        p1,
-        p2
-      );
-      return (distanceInMeters / 1000).toFixed(2);
-    }
-    return null;
-  };
+
 
   // Helper function to format distance (in meters) to km.
   const formatDistance = (distance) => {

@@ -23,6 +23,7 @@ import ContactPage from './pages/ContactPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionsPage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import UserTransactions from './pages/UserTransactions';
+import CaptainCompletedRides from './pages/CaptainCompletedRides';
 const App = () => {
   return (
     <div>
@@ -111,6 +112,14 @@ const App = () => {
           element={
             <CaptainProtectWrapper>
               <CaptainRidesHistory />
+            </CaptainProtectWrapper>
+          }
+        />
+      <Route
+          path="/CaptainCompletedRides"
+          element={
+            <CaptainProtectWrapper>
+              <CaptainCompletedRides />
             </CaptainProtectWrapper>
           }
         />

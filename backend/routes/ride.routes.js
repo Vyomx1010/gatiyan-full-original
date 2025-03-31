@@ -44,7 +44,7 @@ router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRide
 router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRideHistory);
 // Route to confirm cash payment for a ride
 router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
-
+router.get("/completed", authMiddleware.authCaptain, rideController.getCompletedRidesForCaptain);
 
 
 

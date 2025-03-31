@@ -569,11 +569,29 @@ module.exports.getPendingRides = async (req, res) => {
 
 module.exports.getAllAcceptedRides = async (req, res) => {
   try {
-    const rides = await rideModel.find({ status: { $in: ["accepted", "ongoing", "completed", "cancelled"] } });
+    const captainId = req.captain._id; // Assuming req.captain is set by auth middleware
+    const rides = await rideModel.find({
+      status: { $in: ["accepted", "ongoing", "completed", "cancelled"] },
+      captain: captainId
+    });
     res.status(200).json(rides);
   } catch (error) {
     console.error("Error fetching rides:", error);
     res.status(500).json({ message: "Error fetching rides" });
+  }
+};
+
+module.exports.getCompletedRidesForCaptain = async (req, res) => {
+  try {
+    const captainId = req.captain._id; // Captain ID from authenticated user (via middleware)
+    const completedRides = await rideModel.find({
+      captain: captainId,
+      status: "completed",
+    });
+    res.status(200).json(completedRides);
+  } catch (error) {
+    console.error("Error fetching completed rides:", error);
+    res.status(500).json({ message: "Error fetching completed rides" });
   }
 };
 
