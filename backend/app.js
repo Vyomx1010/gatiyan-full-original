@@ -10,7 +10,7 @@ const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const contactRoutes = require('./routes/contact.routes');
 const cookieParser = require('cookie-parser');
-const cors = require('cors'); 
+// const cors = require('cors'); 
 const app = express();
 
 // Trust proxy for proper IP handling (you can remove this if not needed)

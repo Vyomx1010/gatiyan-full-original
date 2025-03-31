@@ -140,7 +140,6 @@ const CaptainRidesHistory = () => {
     try {
       await axios.patch(
         `${baseUrl}/rides/${modalRide._id}/cash-payment-done`,
-        {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Update the ride in local state
@@ -251,17 +250,7 @@ const CaptainRidesHistory = () => {
                         <p className="text-lg font-bold text-gray-800">₹{ride.fare}</p>
                         {getStatusBadge(ride.status)}
                       </div>
-                      {/* Show cash payment button if ride is accepted, paymentType is cash and payment not done */}
-                      {ride.status === "accepted" &&
-                        ride.paymentType === "cash" &&
-                        ride.isPaymentDone === false && (
-                          <button
-                            onClick={() => handleOpenModal(ride)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Cash Payment Done
-                          </button>
-                        )}
+
                     </div>
                   </div>
                 </div>

@@ -26,15 +26,6 @@ const Captainnavbar = () => {
       scrolledHover: 'hover:text-gray-200',
       mobileBg: 'bg-gray-800'
     },
-    '/myearings': {
-      base: 'bg-gradient-to-r from-gray-900 to-black',
-      scrolled: 'bg-gray-900',
-      text: 'text-gray-100',
-      scrolledText: 'text-gray-300',
-      hover: 'hover:text-gray-400',
-      scrolledHover: 'hover:text-gray-200',
-      mobileBg: 'bg-gray-800'
-    },
     '/captain-ride-history': {
       base: 'bg-gradient-to-r from-gray-900 to-black',
       scrolled: 'bg-gray-900',
@@ -56,7 +47,6 @@ const Captainnavbar = () => {
 
   const navLinks = [
     { path: '/captain-home', label: 'Dashboard' },
-    { path: '/myearings', label: 'My Earnings' },
     { path: '/captain-ride-history', label: 'Ride History' },
     { path: '/captain/logout', label: 'Logout' }
   ];

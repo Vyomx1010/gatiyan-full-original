@@ -595,13 +595,15 @@ module.exports.getAllAcceptedRides = async (req, res) => {
       });
   
       if (!ride) {
-        return res.status(404).json({ message: "Ride not found or payment already updated" });
+        return res.status(404).json({ message: 'Ride not found' });
       }
-  
+      // Verify the captain is authorized (assuming authMiddleware sets req.captain)
+      if (!req.captain || ride.captain.toString() !== req.captain._id.toString()) {
+        return res.status(403).json({ message: 'Unauthorized to update this ride' });
+      }
       // Mark the cash payment as done
       ride.isPaymentDone = true;
       await ride.save();
-  
       res.status(200).json({ message: "Cash payment updated successfully" });
     } catch (error) {
       console.error("Error updating cash payment:", error);
@@ -609,6 +611,7 @@ module.exports.getAllAcceptedRides = async (req, res) => {
     }
   };
   
+
 
 module.exports.getCompletedRidesForCaptain = async (req, res) => {
   try {
