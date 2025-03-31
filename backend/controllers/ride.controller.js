@@ -556,6 +556,27 @@ module.exports.endRide = async (req, res) => {
   }
 };
 
+
+module.exports.getPendingRides = async (req, res) => {
+  try {
+    const pendingRides = await rideModel.find({ status: "pending", captain: null });
+    res.status(200).json(pendingRides);
+  } catch (error) {
+    console.error("Error fetching pending rides:", error);
+    res.status(500).json({ message: "Error fetching pending rides" });
+  }
+};
+
+module.exports.getAllAcceptedRides = async (req, res) => {
+  try {
+    const rides = await rideModel.find({ status: { $in: ["accepted", "ongoing", "completed", "cancelled"] } });
+    res.status(200).json(rides);
+  } catch (error) {
+    console.error("Error fetching rides:", error);
+    res.status(500).json({ message: "Error fetching rides" });
+  }
+};
+
 module.exports.getUserRideHistory = async (req, res) => {
   try {
     const rides = await rideModel

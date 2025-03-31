@@ -12,19 +12,13 @@ const CaptainRidesHistory = () => {
   // Fetch rides from backend
   const fetchRides = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("❌ No token found, redirecting to login");
-      return;
-    }
     try {
-      const res = await axios.get(`${baseUrl}/captain-history`, {
+      const res = await axios.get(`${baseUrl}/rides/accepted`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(res.data)) {
         const sortedRides = res.data.sort(
-          (a, b) =>
-            new Date(b.rideDate + " " + b.rideTime) -
-            new Date(a.rideDate + " " + a.rideTime)
+          (a, b) => new Date(b.rideDate + " " + b.rideTime) - new Date(a.rideDate + " " + a.rideTime)
         );
         setRides(sortedRides);
       } else {

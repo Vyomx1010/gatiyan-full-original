@@ -36,6 +36,8 @@ router.get('/get-fare',
     rideController.getFare
 )
   
+router.get("/pending", authMiddleware.authCaptain, rideController.getPendingRides);
+router.get("/accepted", authMiddleware.authCaptain, rideController.getAllAcceptedRides);
 
 router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
 // Route to get captain's ride history

@@ -46,7 +46,7 @@ const CaptainHome = () => {
       return;
     }
     try {
-      const res = await axios.get(`${baseUrl}/rides/captain/all`, {
+      const res = await axios.get(`${baseUrl}/rides/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(res.data)) {
@@ -63,8 +63,7 @@ const CaptainHome = () => {
       console.error("Error fetching rides:", error);
       setRides([]);
     }
-  };
-
+  };  
   // Initial fetch on mount
   useEffect(() => {
     fetchRides();
