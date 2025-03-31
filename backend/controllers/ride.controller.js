@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 const { sendEmail } = require('../services/communication.service');
 const captainModel = require('../models/captain.model');
 const paymentService = require('../services/payment.service'); // Added missing import
-
+const blackListTokenModel = require('../models/blackListToken.model'); 
 dotenv.config();
 
 module.exports.createRide = async (req, res) => {
@@ -614,8 +614,11 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
 module.exports.getAllRidesForCaptains = async (req, res) => {
     try {
         // Fetch pending rides for captains including distance and duration
-        const rides = await rideModel.find({ status: "pending" })
-            .select("pickup destination rideDate rideTime fare status distance duration createdAt")
+        const { captainId } = req.params;
+        const rides = await rideModel.find({ 
+          captain: captainId, 
+          status: "accepted" 
+        }).select("pickup destination rideDate rideTime fare status distance duration createdAt")
             .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
   
         res.status(200).json(rides);
@@ -669,21 +672,20 @@ module.exports.getCaptainEarnings = async (req, res) => {
 };
 
 
-
-
 // GET: Captain Ride History
 // This endpoint expects that the auth middleware sets req.captain.
 exports.getCaptainRidesHistory = async (req, res) => {
-    try {
-      const rides = await rideModel
-        .find({ captain: req.user._id }) // req.user from authMiddleware
-        .populate('user', 'fullname email mobileNumber')
-        .populate('captain', 'fullname email');
-      res.status(200).json({ success: true, rides });
-    } catch (err) {
-      console.error('Error fetching captain rides:', err);
-      res.status(500).json({ success: false, message: err.message });
-    }
+  try {
+    // Fetch pending rides for captains including distance and duration
+    const rides = await rideModel.find({ status: "accepted" })
+        .select("pickup destination rideDate rideTime fare status distance duration createdAt")
+        .sort({ rideDate: -1, rideTime: -1, createdAt: -1 }); // Latest rides first
+
+    res.status(200).json(rides);
+} catch (err) {
+    console.error("❌ Error fetching rides:", err);
+    res.status(500).json({ message: "Internal server error" });
+}
   };
 
 // POST: Confirm Cash Payment for a Ride

@@ -35,7 +35,13 @@ router.get('/get-fare',
     query('destination').isString().isLength({ min: 3 }).withMessage('Invalid destination address'),
     rideController.getFare
 )
-  router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
+  
+
+router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
+// Route to get captain's ride history
+router.get('/captain-history', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
+// Route to confirm cash payment for a ride
+router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 
 
 
@@ -63,9 +69,5 @@ router.get('/:rideId', authMiddleware.authUser, rideController.getRideById);
 // Backend/routes/ride.routes.js
 router.get('/user/history', authMiddleware.authUser, rideController.getUserRideHistory);
 
-// Route to get captain's ride history
-router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRidesHistory);
-// Route to confirm cash payment for a ride
-router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 
 module.exports = router;

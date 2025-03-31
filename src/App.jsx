@@ -106,14 +106,15 @@ const App = () => {
             </CaptainProtectWrapper>
           }
         />
-        <Route
-          path="/captainrideshistory"
+      <Route
+          path="/captain-ride-history"
           element={
             <CaptainProtectWrapper>
               <CaptainRidesHistory />
             </CaptainProtectWrapper>
           }
         />
+
 
         {/* Fallback Route for 404 and wrong requests */}
         <Route path="*" element={<NotFoundPage />} />

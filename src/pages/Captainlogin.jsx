@@ -52,7 +52,7 @@ const Captainlogin = () => {
           navigate('/verify-email-otp', {
             state: { email: responseEmail || email, mobileNumber, userType: 'captain' },
           });
-        }, 2000);
+        }, 20);
       }
     } finally {
       setLoading(false);

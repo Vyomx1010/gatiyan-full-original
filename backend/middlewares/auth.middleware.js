@@ -49,19 +49,19 @@ module.exports.authCaptain = async (req, res, next) => {
   try {
     const token = getTokenFromRequest(req);
     if (!token || typeof token !== 'string' || token.trim() === '') {
-      console.log("token: ",token);
-      console.log("req.headers: ",req.headers);
+      // console.log("token: ",token);
+      // console.log("req.headers: ",req.headers);
       return res.status(401).json({ message: 'Unauthorized: No valid token provided' });
     }
     
     const blacklisted = await blackListTokenModel.findOne({ token });
     if (blacklisted) {
-      console.log("token: ",token);
+      // console.log("token: ",token);
       return res.status(401).json({ message: 'Unauthorized: Token is blacklisted' });
     }
     
     if (token.split('.').length !== 3) {
-      console.log("split token: ",token);
+      // console.log("split token: ",token);
       return res.status(401).json({ message: 'Unauthorized: Invalid token format' });
     }
     
@@ -74,8 +74,8 @@ module.exports.authCaptain = async (req, res, next) => {
     
     req.captain = captain;
     // Log after assignment to verify correct value
-    console.log('Auth Captain:', req.captain);
-    console.log('Querying rides for captain ID:', req.captain._id);
+    // console.log('Auth Captain:', req.captain);
+    // console.log('Querying rides for captain ID:', req.captain._id);
     
     next();
   } catch (err) {
