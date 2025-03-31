@@ -567,18 +567,48 @@ module.exports.getPendingRides = async (req, res) => {
 };
 
 module.exports.getAllAcceptedRides = async (req, res) => {
-  try {
-    const captainId = req.captain._id; // Assuming req.captain is set by auth middleware
-    const rides = await rideModel.find({
-      status: { $in: ["accepted", "ongoing", "completed", "cancelled"] },
-      captain: captainId
-    });
-    res.status(200).json(rides);
-  } catch (error) {
-    console.error("Error fetching rides:", error);
-    res.status(500).json({ message: "Error fetching rides" });
-  }
-};
+    try {
+      const captainId = req.captain._id;
+      const rides = await rideModel.find({
+        status: { $in: ["accepted", "ongoing", "completed", "cancelled"] },
+        captain: captainId
+      });
+      res.status(200).json(rides);
+    } catch (error) {
+      console.error("Error fetching rides:", error);
+      res.status(500).json({ message: "Error fetching rides" });
+    }
+  };
+  
+  module.exports.markCashPaymentDone = async (req, res) => {
+    try {
+      const { rideId } = req.params;
+      const captainId = req.captain._id;
+      
+      // Find the ride that meets the conditions
+      const ride = await rideModel.findOne({
+        _id: rideId,
+        captain: captainId,
+        paymentType: "cash",
+        isPaymentDone: false,
+        status: "accepted"
+      });
+  
+      if (!ride) {
+        return res.status(404).json({ message: "Ride not found or payment already updated" });
+      }
+  
+      // Mark the cash payment as done
+      ride.isPaymentDone = true;
+      await ride.save();
+  
+      res.status(200).json({ message: "Cash payment updated successfully" });
+    } catch (error) {
+      console.error("Error updating cash payment:", error);
+      res.status(500).json({ message: "Error updating cash payment" });
+    }
+  };
+  
 
 module.exports.getCompletedRidesForCaptain = async (req, res) => {
   try {

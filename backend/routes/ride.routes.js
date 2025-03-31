@@ -59,6 +59,8 @@ router.post('/end-ride',
     body('rideId').isMongoId().withMessage('Invalid ride id'),
     rideController.endRide
 )
+// New PATCH endpoint for marking cash payment done
+router.patch("/:rideId/cash-payment-done", authMiddleware.authCaptain, rideController.markCashPaymentDone);
 
 router.get('/:rideId', authMiddleware.authUser, rideController.getRideById);
 

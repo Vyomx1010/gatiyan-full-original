@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Captainnavbar from "../components/Captainnavbar";
 
@@ -9,6 +9,12 @@ const CaptainRidesHistory = () => {
   const [cooldown, setCooldown] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalRide, setModalRide] = useState(null);
+  const [okDisabled, setOkDisabled] = useState(true);
+  const [modalCountdown, setModalCountdown] = useState(0);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const modalTimerRef = useRef(null);
   const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
   // Fetch rides from backend
@@ -100,6 +106,59 @@ const CaptainRidesHistory = () => {
       ? filteredRides
       : filteredRides.filter((ride) => ride.status === selectedFilter);
 
+  // Open modal for cash payment confirmation
+  const handleOpenModal = (ride) => {
+    setModalRide(ride);
+    setModalVisible(true);
+    setOkDisabled(true);
+    setModalCountdown(2);
+    // Start countdown timer for 2 seconds
+    modalTimerRef.current = setInterval(() => {
+      setModalCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(modalTimerRef.current);
+          setOkDisabled(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Close the modal and clear any active timers
+  const handleCancelModal = () => {
+    setModalVisible(false);
+    if (modalTimerRef.current) {
+      clearInterval(modalTimerRef.current);
+    }
+  };
+
+  // Confirm cash payment and update backend & UI
+  const handleConfirmPayment = async () => {
+    setIsProcessingPayment(true);
+    const token = localStorage.getItem("token");
+    try {
+      await axios.patch(
+        `${baseUrl}/rides/${modalRide._id}/cash-payment-done`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Update the ride in local state
+      const updatedRides = rides.map((ride) => {
+        if (ride._id === modalRide._id) {
+          return { ...ride, isPaymentDone: true };
+        }
+        return ride;
+      });
+      setRides(updatedRides);
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Error updating cash payment:", error);
+      // Optionally handle error (e.g., show notification)
+    }
+    setIsProcessingPayment(false);
+  };
+
   return (
     <>
       <Captainnavbar />
@@ -187,9 +246,22 @@ const CaptainRidesHistory = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg font-bold text-gray-800">₹{ride.fare}</p>
-                      {getStatusBadge(ride.status)}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between items-center">
+                        <p className="text-lg font-bold text-gray-800">₹{ride.fare}</p>
+                        {getStatusBadge(ride.status)}
+                      </div>
+                      {/* Show cash payment button if ride is accepted, paymentType is cash and payment not done */}
+                      {ride.status === "accepted" &&
+                        ride.paymentType === "cash" &&
+                        ride.isPaymentDone === false && (
+                          <button
+                            onClick={() => handleOpenModal(ride)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Cash Payment Done
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -198,6 +270,44 @@ const CaptainRidesHistory = () => {
           )}
         </div>
       </div>
+
+      {/* Modal for Cash Payment Confirmation */}
+      {modalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+            <h2 className="text-xl font-bold mb-4">Cash Payment Confirmation</h2>
+            <p className="mb-4">Is cash payment done?</p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleConfirmPayment}
+                disabled={okDisabled || isProcessingPayment}
+                className={`w-full py-2 rounded ${
+                  okDisabled || isProcessingPayment
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {isProcessingPayment ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="spinner-border animate-spin inline-block w-5 h-5 border-2 rounded-full"></span>
+                    Processing...
+                  </span>
+                ) : okDisabled ? (
+                  `OK (${modalCountdown}s)`
+                ) : (
+                  "OK"
+                )}
+              </button>
+              <button
+                onClick={handleCancelModal}
+                className="w-full py-2 rounded bg-red-600 hover:bg-red-700 text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
