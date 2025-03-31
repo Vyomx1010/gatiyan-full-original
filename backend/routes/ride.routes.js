@@ -39,7 +39,7 @@ router.get('/get-fare',
 
 router.get('/captain/all', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
 // Route to get captain's ride history
-router.get('/captain-history', authMiddleware.authCaptain, rideController.getAllRidesForCaptains);
+router.get('/captain-history', authMiddleware.authCaptain, rideController.getCaptainRideHistory);
 // Route to confirm cash payment for a ride
 router.post('/confirm-payment/:rideId', authMiddleware.authCaptain, rideController.confirmCashPayment);
 
